@@ -7,6 +7,10 @@ type Builder struct {
 	Err  error
 }
 
+func NewBuilder() *Builder {
+	return &Builder{}
+}
+
 func (instance *Builder) WithID(id uuid.UUID) *Builder {
 	instance.User.id = id
 	return instance
