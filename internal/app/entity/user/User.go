@@ -1,6 +1,9 @@
 package user
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type User struct {
 	id          uuid.UUID
@@ -9,6 +12,8 @@ type User struct {
 	password    string
 	dateOfBirth string
 	admin       bool
+	createdAt   time.Time
+	updatedAt   time.Time
 }
 
 func (instance *User) ID() uuid.UUID {
@@ -33,4 +38,12 @@ func (instance *User) DateOfBirth() string {
 
 func (instance *User) Admin() bool {
 	return instance.admin
+}
+
+func (instance *User) CreatedAt() time.Time {
+	return instance.createdAt
+}
+
+func (instance *User) UpdatedAt() time.Time {
+	return instance.updatedAt
 }

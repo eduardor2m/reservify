@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"reservify/internal/adapters/delivery/http/handlers/dto/request"
+	"reservify/internal/adapters/delivery/http/handlers/dto/response"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 )
@@ -12,32 +14,80 @@ type UserHandler struct {
 }
 
 func (instance UserHandler) CreateUser(context echo.Context) error {
+	var userDTO request.UserDTO
 
-	userCreated, err := user.NewBuilder().WithName("test").WithEmail("test@gmail.com").WithPassword("test").Build()
-
+	err := context.Bind(&userDTO)
 	if err != nil {
-		return context.JSON(http.StatusBadRequest, err)
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.CreateUser(*userCreated)
+	userReceived, err := user.NewBuilder().WithName(userDTO.Name).WithEmail(userDTO.Email).WithPassword(userDTO.Password).WithDateOfBirth(userDTO.DateOfBirth).WithAdmin(userDTO.Admin).Build()
 
 	if err != nil {
-		return context.JSON(http.StatusBadRequest, err)
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	return context.JSON(http.StatusOK, nil)
+	err = instance.service.CreateUser(*userReceived)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "User created successfully"})
+}
+
+func (instance UserHandler) ListAllUsers(context echo.Context) error {
+	users, err := instance.service.ListAllUsers()
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	var usersResponse []response.User
+
+	for _, userDB := range users {
+		usersResponse = append(usersResponse, *response.NewUser(userDB))
+	}
+
+	return context.JSON(http.StatusOK, usersResponse)
 }
 
 func (instance UserHandler) GetUserByName(context echo.Context) error {
-	return context.JSON(http.StatusOK, nil)
+	var name string
+
+	name = context.Param("name")
+
+	users, err := instance.service.GetUserByName(name)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	var usersResponse []response.User
+
+	for _, userDB := range users {
+		usersResponse = append(usersResponse, *response.NewUser(userDB))
+	}
+
+	return context.JSON(http.StatusOK, usersResponse)
+
 }
 
 func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
-	return context.JSON(http.StatusOK, nil)
+	return context.JSON(http.StatusLocked, response.InfoResponse{Message: "Not implemented yet"})
 }
 
 func (instance UserHandler) DeleteUserByEmail(context echo.Context) error {
-	return context.JSON(http.StatusOK, nil)
+	var email string
+
+	email = context.Param("email")
+
+	err := instance.service.DeleteUserByEmail(email)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "User deleted successfully"})
 }
 
 func NewUserHandler(service primary.UserManager) *UserHandler {

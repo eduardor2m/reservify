@@ -1,6 +1,9 @@
 package user
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type Builder struct {
 	User User
@@ -38,6 +41,16 @@ func (instance *Builder) WithDateOfBirth(dateOfBirth string) *Builder {
 
 func (instance *Builder) WithAdmin(admin bool) *Builder {
 	instance.User.admin = admin
+	return instance
+}
+
+func (instance *Builder) WithCreatedAt(createdAt time.Time) *Builder {
+	instance.User.createdAt = createdAt
+	return instance
+}
+
+func (instance *Builder) WithUpdatedAt(updatedAt time.Time) *Builder {
+	instance.User.updatedAt = updatedAt
 	return instance
 }
 

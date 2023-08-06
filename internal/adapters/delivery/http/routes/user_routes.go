@@ -10,4 +10,8 @@ func loadUserRoutes(group *echo.Group) {
 	userHandlers := dicontainer.GetUserHandler()
 
 	userGroup.POST("", userHandlers.CreateUser)
+	userGroup.GET("", userHandlers.ListAllUsers)
+	userGroup.GET("/:name", userHandlers.GetUserByName)
+	userGroup.PUT("/:email", userHandlers.UpdateUserByEmail)
+	userGroup.DELETE("/:email", userHandlers.DeleteUserByEmail)
 }

@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"log"
 )
 
 type connectorManager interface {
@@ -16,24 +18,28 @@ type DatabaseConnectorManager struct{}
 func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
 	uri := "postgres://root:root@localhost:5432/reservify?sslmode=disable"
 
-	db, err := sqlx.Open("postgres", uri)
+	db, err := sqlx.Connect("postgres", uri)
 	if err != nil {
 		return nil, err
 	}
 
 	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
-			id uuid PRIMARY KEY,
-			name varchar(255),
-			email varchar(255) UNIQUE,
-			password varchar(255),
-			date_of_birth varchar(255),
-			admin boolean
+		CREATE TABLE IF NOT EXISTS "user" (
+			id UUID PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			email VARCHAR(255) NOT NULL UNIQUE,
+			password VARCHAR(255) NOT NULL,
+			date_of_birth VARCHAR(255),
+			admin BOOLEAN,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);
 	`)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
+
+	db.SetMaxOpenConns(10)
 
 	return db, nil
 }
