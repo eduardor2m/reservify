@@ -2,9 +2,13 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"os"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
+	"time"
 )
 
 var _ repository.UserLoader = &UserPostgresRepository{}
@@ -31,6 +35,43 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 	defer instance.closeConnection(conn)
 
 	return nil
+}
+
+func (instance UserPostgresRepository) LoginUser(email string, password string) (error, *string) {
+	conn, err := instance.getConnection()
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err), nil
+	}
+	defer instance.closeConnection(conn)
+
+	var userPass string
+
+	err = conn.QueryRow(`
+		SELECT password FROM "user" WHERE email = $1;
+	`, email).Scan(&userPass)
+
+	err = bcrypt.CompareHashAndPassword([]byte(userPass), []byte(password))
+
+	if err != nil {
+		return fmt.Errorf("falha ao logar usuário: %v", err), nil
+	}
+
+	jwtSecretKey := os.Getenv("JWT_SECRET")
+
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["authorized"] = true
+	claims["user_id"] = email
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+
+	tokenString, err := token.SignedString([]byte(jwtSecretKey))
+
+	if err != nil {
+		return fmt.Errorf("falha ao logar usuário: %v", err), nil
+	}
+
+	return nil, &tokenString
 }
 
 func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
@@ -62,7 +103,8 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 
 	for rows.Next() {
 		var id uuid.UUID
-		var name, email, password, dateOfBirth, createdAt, updatedAt string
+		var name, email, password, dateOfBirth string
+		var createdAt, updatedAt time.Time
 		var admin bool
 
 		err := rows.Scan(&id, &name, &email, &password, &dateOfBirth, &admin, &createdAt, &updatedAt)
@@ -77,6 +119,8 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 			WithPassword(password).
 			WithDateOfBirth(dateOfBirth).
 			WithAdmin(admin).
+			WithCreatedAt(createdAt).
+			WithUpdatedAt(updatedAt).
 			Build()
 
 		if err != nil {

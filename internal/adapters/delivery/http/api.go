@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/labstack/echo/v4"
 	"os"
+	"reservify/internal/adapters/delivery/http/middlewares"
 	"reservify/internal/adapters/delivery/http/routes"
 )
 
@@ -32,6 +33,7 @@ func NewAPI(options *Options) API {
 
 func (instance *api) Serve() {
 	instance.loadRoutes()
+	instance.echoInstance.Use(middlewares.GuardMiddleware)
 	port := os.Getenv("SERVER_PORT")
 
 	instance.echoInstance.Logger.Fatal(instance.echoInstance.Start(":" + port))

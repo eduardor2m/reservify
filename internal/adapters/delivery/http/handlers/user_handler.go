@@ -35,6 +35,24 @@ func (instance UserHandler) CreateUser(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "User created successfully"})
 }
 
+func (instance UserHandler) LoginUser(context echo.Context) error {
+	var userDTO request.UserDTO
+
+	err := context.Bind(&userDTO)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	err, token := instance.service.LoginUser(userDTO.Email, userDTO.Password)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	context.Response().Header().Set("Authorization", *token)
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "User logged successfully"})
+}
+
 func (instance UserHandler) ListAllUsers(context echo.Context) error {
 	users, err := instance.service.ListAllUsers()
 
