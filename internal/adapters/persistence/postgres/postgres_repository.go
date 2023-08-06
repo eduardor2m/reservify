@@ -50,6 +50,35 @@ func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
 		    		);
 	`)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS guest (
+		    			id UUID PRIMARY KEY,
+		    			name VARCHAR(255) NOT NULL,
+		    			cpf VARCHAR(255) NOT NULL,
+		    			create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		    			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		    		);
+	`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS "reservation" (
+		    			id UUID PRIMARY KEY,
+		    			user_cpf VARCHAR(255) NOT NULL,
+		    			room_cod VARCHAR(255) NOT NULL,
+		    			guest_cpf VARCHAR(255) NOT NULL,
+		    			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		    			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		    		);
+	`)
+
 	db.SetMaxOpenConns(10)
 
 	return db, nil

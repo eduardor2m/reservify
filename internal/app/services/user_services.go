@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"reservify/internal/app/entity/guest"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
@@ -40,6 +41,10 @@ func (instance *UserServices) CreateUser(u user.User) error {
 
 func (instance *UserServices) LoginUser(email string, password string) (error, *string) {
 	return instance.userRepository.LoginUser(email, password)
+}
+
+func (instance *UserServices) RentRoom(email string, roomCod string, guests *[]guest.Guest) error {
+	return instance.userRepository.RentRoom(email, roomCod, guests)
 }
 
 func (instance *UserServices) ListAllUsers() ([]user.User, error) {

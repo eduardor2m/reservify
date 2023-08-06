@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"reservify/internal/app/entity/guest"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
 	"time"
@@ -72,6 +73,18 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 	}
 
 	return nil, &tokenString
+}
+
+func (instance UserPostgresRepository) RentRoom(cpf string, roomCod string, guests *[]guest.Guest) error {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	return nil
 }
 
 func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
