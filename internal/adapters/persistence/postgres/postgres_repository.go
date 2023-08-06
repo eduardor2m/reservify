@@ -35,9 +35,20 @@ func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);
 	`)
+
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS room (
+		    			id UUID PRIMARY KEY,
+		    			cod VARCHAR(255) NOT NULL,
+		    			number VARCHAR(255) NOT NULL,
+		    			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		    			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		    		);
+	`)
 
 	db.SetMaxOpenConns(10)
 

@@ -7,8 +7,10 @@ import (
 
 type User struct {
 	id          uuid.UUID
+	cpf         string
 	name        string
 	email       string
+	phone       string
 	password    string
 	dateOfBirth string
 	admin       bool
@@ -24,8 +26,16 @@ func (instance *User) Name() string {
 	return instance.name
 }
 
+func (instance *User) CPF() string {
+	return instance.cpf
+}
+
 func (instance *User) Email() string {
 	return instance.email
+}
+
+func (instance *User) Phone() string {
+	return instance.phone
 }
 
 func (instance *User) Password() string {

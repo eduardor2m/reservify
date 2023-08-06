@@ -10,6 +10,7 @@ func GuardMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(context echo.Context) error {
 		urlsNotNeedAuthorization := []string{
 			"/api/user/login",
+			"/api/user",
 		}
 
 		for _, url := range urlsNotNeedAuthorization {

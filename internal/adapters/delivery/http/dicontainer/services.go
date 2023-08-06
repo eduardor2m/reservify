@@ -8,3 +8,7 @@ import (
 func GetUserServices() primary.UserManager {
 	return services.NewUserServices(GetUserRepository())
 }
+
+func GetRoomServices() primary.RoomManager {
+	return services.NewRoomServices(GetRoomRepository())
+}

@@ -19,6 +19,11 @@ func (instance *Builder) WithID(id uuid.UUID) *Builder {
 	return instance
 }
 
+func (instance *Builder) WithCPF(cpf string) *Builder {
+	instance.User.cpf = cpf
+	return instance
+}
+
 func (instance *Builder) WithName(name string) *Builder {
 	instance.User.name = name
 	return instance
@@ -26,6 +31,11 @@ func (instance *Builder) WithName(name string) *Builder {
 
 func (instance *Builder) WithEmail(email string) *Builder {
 	instance.User.email = email
+	return instance
+}
+
+func (instance *Builder) WithPhone(phone string) *Builder {
+	instance.User.phone = phone
 	return instance
 }
 
