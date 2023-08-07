@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"reservify/internal/adapters/delivery/http/handlers/dto/request"
@@ -47,6 +48,19 @@ func (instance RoomHandler) ListAllRooms(context echo.Context) error {
 	}
 
 	return context.JSON(http.StatusOK, roomsResponse)
+}
+
+func (instance RoomHandler) GetRoomByID(context echo.Context) error {
+	id := context.Param("id")
+
+	roomID, err := uuid.Parse(id)
+
+	roomReceived, err := instance.service.GetRoomByID(roomID)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.NewRoom(*roomReceived))
 }
 
 func NewRoomHandler(service primary.RoomManager) *RoomHandler {

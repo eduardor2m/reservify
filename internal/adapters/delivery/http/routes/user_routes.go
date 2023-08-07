@@ -13,6 +13,7 @@ func loadUserRoutes(group *echo.Group) {
 	userGroup.POST("/login", userHandlers.LoginUser)
 	userGroup.POST("/rent", userHandlers.RentRoom)
 	userGroup.GET("", userHandlers.ListAllUsers)
+	userGroup.GET("/id/:id", userHandlers.GetUserByID)
 	userGroup.GET("/:name", userHandlers.GetUserByName)
 	userGroup.PUT("/:email", userHandlers.UpdateUserByEmail)
 	userGroup.DELETE("/:email", userHandlers.DeleteUserByEmail)

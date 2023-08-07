@@ -29,6 +29,10 @@ func (instance *RoomServices) ListAllRooms() ([]room.Room, error) {
 	return instance.roomRepository.ListAllRooms()
 }
 
+func (instance *RoomServices) GetRoomByID(id uuid.UUID) (*room.Room, error) {
+	return instance.roomRepository.GetRoomByID(id)
+}
+
 func NewRoomServices(roomRepository repository.RoomLoader) *RoomServices {
 	return &RoomServices{
 		roomRepository: roomRepository,

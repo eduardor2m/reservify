@@ -1,6 +1,6 @@
 # Hotel Room Reservation API - Reservify
 
-**Desenvolvido por:** [Seu Nome](https://github.com/eduardor2m)
+**Desenvolvido por:** Eduardo Melo (https://github.com/eduardor2m)
 
 Uma API de reserva de quartos para hotéis com autenticação e diferentes níveis de usuário. Este projeto é um exemplo prático de como criar uma API robusta em Go (Golang) usando autenticação JWT e armazenamento de dados no PostgreSQL.
 

@@ -162,6 +162,48 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 	return users, nil
 }
 
+func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, error) {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	var name, email, password, dateOfBirth, cpf, phone string
+	var createdAt, updatedAt time.Time
+	var admin bool
+	var idUser uuid.UUID
+
+	err = conn.QueryRow(`
+		SELECT id, name, email, password, cpf, phone, date_of_birth, admin, created_at, updated_at FROM "user" WHERE id = $1;
+	`, id).Scan(&idUser, &name, &email, &password, &cpf, &phone, &dateOfBirth, &admin, &createdAt, &updatedAt)
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	userReceived, err := user.NewBuilder().
+		WithID(idUser).
+		WithName(name).
+		WithEmail(email).
+		WithCPF(cpf).
+		WithPhone(phone).
+		WithPassword(password).
+		WithDateOfBirth(dateOfBirth).
+		WithAdmin(admin).
+		WithCreatedAt(createdAt).
+		WithUpdatedAt(updatedAt).
+		Build()
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao construir usuário: %v", err)
+	}
+
+	return userReceived, nil
+}
+
 func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, error) {
 	var users []user.User
 

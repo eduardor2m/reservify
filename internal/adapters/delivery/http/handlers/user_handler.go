@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"reservify/internal/adapters/delivery/http/handlers/dto/request"
@@ -100,6 +101,24 @@ func (instance UserHandler) ListAllUsers(context echo.Context) error {
 	}
 
 	return context.JSON(http.StatusOK, usersResponse)
+}
+
+// GetUserByID
+
+func (instance UserHandler) GetUserByID(context echo.Context) error {
+	var id string
+
+	id = context.Param("id")
+
+	userID, err := uuid.Parse(id)
+
+	userReceived, err := instance.service.GetUserByID(userID)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.NewUser(*userReceived))
 }
 
 func (instance UserHandler) RentRoom(context echo.Context) error {

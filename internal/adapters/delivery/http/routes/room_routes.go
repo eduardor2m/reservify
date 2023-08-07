@@ -11,4 +11,5 @@ func loadRoomRoutes(group *echo.Group) {
 
 	roomGroup.POST("", roomHandlers.CreateRoom)
 	roomGroup.GET("", roomHandlers.ListAllRooms)
+	roomGroup.GET("/:id", roomHandlers.GetRoomByID)
 }

@@ -83,6 +83,45 @@ func (instance RoomPostgresRepository) ListAllRooms() ([]room.Room, error) {
 	return rooms, nil
 }
 
+func (instance RoomPostgresRepository) GetRoomByID(id uuid.UUID) (*room.Room, error) {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	stmt, err := conn.Prepare("SELECT * FROM room WHERE id = $1;")
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	var idDB uuid.UUID
+	var cod string
+	var number int
+	var vacancies int
+	var price float64
+	var createdAt time.Time
+	var updatedAt time.Time
+
+	err = stmt.QueryRow(id).Scan(&idDB, &cod, &number, &vacancies, &price, &createdAt, &updatedAt)
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	roomDB, err := room.NewBuilder().WithID(idDB).WithCod(cod).WithNumber(number).WithVacancies(vacancies).WithPrice(price).WithCreatedAt(createdAt).WithUpdatedAt(updatedAt).Build()
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	return roomDB, nil
+
+}
+
 func NewRoomPostgresRepository(connectorManager connectorManager) *RoomPostgresRepository {
 	return &RoomPostgresRepository{
 		connectorManager: connectorManager,

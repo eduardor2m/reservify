@@ -55,6 +55,10 @@ func (instance *UserServices) ListAllUsers() ([]user.User, error) {
 	return instance.userRepository.ListAllUsers()
 }
 
+func (instance *UserServices) GetUserByID(id uuid.UUID) (*user.User, error) {
+	return instance.userRepository.GetUserByID(id)
+}
+
 func (instance *UserServices) GetUserByName(name string) ([]user.User, error) {
 	return instance.userRepository.GetUserByName(name)
 }
