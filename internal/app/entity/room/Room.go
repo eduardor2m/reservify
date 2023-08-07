@@ -9,6 +9,8 @@ type Room struct {
 	id        uuid.UUID
 	cod       string
 	number    int
+	vacancies int
+	price     float64
 	createdAt time.Time
 	updatedAt time.Time
 }
@@ -23,6 +25,14 @@ func (instance *Room) Cod() string {
 
 func (instance *Room) Number() int {
 	return instance.number
+}
+
+func (instance *Room) Vacancies() int {
+	return instance.vacancies
+}
+
+func (instance *Room) Price() float64 {
+	return instance.price
 }
 
 func (instance *Room) CreatedAt() time.Time {

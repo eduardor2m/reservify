@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"reservify/internal/app/entity/guest"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
@@ -30,7 +29,7 @@ func (instance *UserServices) CreateUser(u user.User) error {
 
 	encryptedPasswordString := string(encryptedPassword)
 
-	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithDateOfBirth(u.DateOfBirth()).WithAdmin(u.Admin()).Build()
+	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithDateOfBirth(u.DateOfBirth()).WithAdmin(u.Admin()).Build()
 
 	if err != nil {
 		return err
@@ -43,8 +42,13 @@ func (instance *UserServices) LoginUser(email string, password string) (error, *
 	return instance.userRepository.LoginUser(email, password)
 }
 
-func (instance *UserServices) RentRoom(email string, roomCod string, guests *[]guest.Guest) error {
-	return instance.userRepository.RentRoom(email, roomCod, guests)
+func (instance *UserServices) RentRoom(
+	id_user string,
+	id_room string,
+	check_in string,
+	check_out string,
+) error {
+	return instance.userRepository.RentRoom(id_user, id_room, check_in, check_out)
 }
 
 func (instance *UserServices) ListAllUsers() ([]user.User, error) {

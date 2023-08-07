@@ -10,4 +10,5 @@ func loadRoomRoutes(group *echo.Group) {
 	roomHandlers := dicontainer.GetRoomHandler()
 
 	roomGroup.POST("", roomHandlers.CreateRoom)
+	roomGroup.GET("", roomHandlers.ListAllRooms)
 }

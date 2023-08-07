@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"os"
-	"reservify/internal/app/entity/guest"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
 	"time"
@@ -26,8 +25,8 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 	}
 
 	_, err = conn.Exec(`
-		INSERT INTO "user" (id, name, email, password, date_of_birth, admin) VALUES ($1, $2, $3, $4, $5, $6);
-	`, u.ID(), u.Name(), u.Email(), u.Password(), u.DateOfBirth(), u.Admin())
+		INSERT INTO "user" (id, name, cpf, phone, email, password, date_of_birth, admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+	`, u.ID(), u.Name(), u.CPF(), u.Phone(), u.Email(), u.Password(), u.DateOfBirth(), u.Admin())
 
 	if err != nil {
 		return fmt.Errorf("falha ao criar usuário: %v", err)
@@ -75,7 +74,12 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 	return nil, &tokenString
 }
 
-func (instance UserPostgresRepository) RentRoom(cpf string, roomCod string, guests *[]guest.Guest) error {
+func (instance UserPostgresRepository) RentRoom(
+	id_user string,
+	id_room string,
+	check_in string,
+	check_out string,
+) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -83,6 +87,16 @@ func (instance UserPostgresRepository) RentRoom(cpf string, roomCod string, gues
 	}
 
 	defer instance.closeConnection(conn)
+
+	newReservationUUID, err := uuid.NewUUID()
+
+	_, err = conn.Exec(`
+		INSERT INTO reservation (id, id_user, id_room, check_in, check_out) VALUES ($1, $2, $3, $4, $5);
+	`, newReservationUUID, id_user, id_room, check_in, check_out)
+
+	if err != nil {
+		return fmt.Errorf("falha ao alugar quarto: %v", err)
+	}
 
 	return nil
 }
@@ -99,7 +113,7 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 	}
 
 	query := `
-		SELECT id, name, email, password, date_of_birth, admin, created_at, updated_at FROM "user";
+		SELECT id, name, email, password, cpf, phone, date_of_birth, admin, created_at, updated_at FROM "user";
 	`
 
 	rows, err := conn.Query(query)
@@ -116,11 +130,11 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 
 	for rows.Next() {
 		var id uuid.UUID
-		var name, email, password, dateOfBirth string
+		var name, email, password, dateOfBirth, cpf, phone string
 		var createdAt, updatedAt time.Time
 		var admin bool
 
-		err := rows.Scan(&id, &name, &email, &password, &dateOfBirth, &admin, &createdAt, &updatedAt)
+		err := rows.Scan(&id, &name, &email, &password, &cpf, &phone, &dateOfBirth, &admin, &createdAt, &updatedAt)
 		if err != nil {
 			return users, fmt.Errorf("falha ao listar usuários: %v", err)
 		}
@@ -129,6 +143,8 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 			WithID(id).
 			WithName(name).
 			WithEmail(email).
+			WithCPF(cpf).
+			WithPhone(phone).
 			WithPassword(password).
 			WithDateOfBirth(dateOfBirth).
 			WithAdmin(admin).

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/google/uuid"
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
@@ -13,7 +14,19 @@ type RoomServices struct {
 }
 
 func (instance *RoomServices) CreateRoom(r room.Room) error {
-	return instance.roomRepository.CreateRoom(r)
+	newRoomUUID, err := uuid.NewUUID()
+
+	if err != nil {
+		return err
+	}
+
+	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).Build()
+
+	return instance.roomRepository.CreateRoom(*formattedRoom)
+}
+
+func (instance *RoomServices) ListAllRooms() ([]room.Room, error) {
+	return instance.roomRepository.ListAllRooms()
 }
 
 func NewRoomServices(roomRepository repository.RoomLoader) *RoomServices {

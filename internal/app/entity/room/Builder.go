@@ -29,6 +29,16 @@ func (instance *Builder) WithNumber(number int) *Builder {
 	return instance
 }
 
+func (instance *Builder) WithVacancies(vacancies int) *Builder {
+	instance.Room.vacancies = vacancies
+	return instance
+}
+
+func (instance *Builder) WithPrice(price float64) *Builder {
+	instance.Room.price = price
+	return instance
+}
+
 func (instance *Builder) WithCreatedAt(createdAt time.Time) *Builder {
 	instance.Room.createdAt = createdAt
 	return instance

@@ -32,7 +32,7 @@ func (instance UserHandler) CreateUser(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	userReceived, err := user.NewBuilder().WithName(userDTO.Name).WithEmail(userDTO.Email).WithPassword(userDTO.Password).WithDateOfBirth(userDTO.DateOfBirth).WithAdmin(userDTO.Admin).Build()
+	userReceived, err := user.NewBuilder().WithName(userDTO.Name).WithEmail(userDTO.Email).WithCPF(userDTO.CPF).WithPhone(userDTO.Phone).WithPassword(userDTO.Password).WithDateOfBirth(userDTO.DateOfBirth).WithAdmin(userDTO.Admin).Build()
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -100,6 +100,24 @@ func (instance UserHandler) ListAllUsers(context echo.Context) error {
 	}
 
 	return context.JSON(http.StatusOK, usersResponse)
+}
+
+func (instance UserHandler) RentRoom(context echo.Context) error {
+	var reservationDTO request.ReservationDTO
+
+	err := context.Bind(&reservationDTO)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	err = instance.service.RentRoom(reservationDTO.IdUser, reservationDTO.IdRoom, reservationDTO.CheckIn, reservationDTO.CheckOut)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room rented successfully"})
 }
 
 // GetUserByName
