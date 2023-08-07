@@ -1,0 +1,21 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Reserva de quartos para Hotéis",
+        "title": "Reservify API",
+        "contact": {
+            "name": "Eduardo Melo",
+            "email": "deveduardomelo@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api",
+    "paths": {},
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

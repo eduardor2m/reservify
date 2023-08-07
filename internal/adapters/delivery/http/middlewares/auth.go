@@ -4,6 +4,8 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"os"
+	"regexp"
+	"strings"
 )
 
 func GuardMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -11,11 +13,23 @@ func GuardMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		urlsNotNeedAuthorization := []string{
 			"/api/user/login",
 			"/api/user",
+			"/api/docs/",
 		}
 
-		for _, url := range urlsNotNeedAuthorization {
-			if url == context.Request().URL.Path {
+		currentURL := context.Request().URL.Path
+
+		for _, urlPattern := range urlsNotNeedAuthorization {
+			if strings.HasPrefix(currentURL, urlPattern) {
 				return next(context)
+			}
+
+			// Handle pattern with wildcard
+			if strings.HasSuffix(urlPattern, "/*") {
+				urlPrefix := strings.TrimSuffix(urlPattern, "/*")
+				matched, err := regexp.MatchString("^"+regexp.QuoteMeta(urlPrefix), currentURL)
+				if err == nil && matched {
+					return next(context)
+				}
 			}
 		}
 

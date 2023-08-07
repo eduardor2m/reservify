@@ -13,6 +13,17 @@ type UserHandler struct {
 	service primary.UserManager
 }
 
+// CreateUser godoc
+// @ID CreateUser
+// @Summary Cria um novo usuário.
+// @Description Cria um novo usuário.
+// @Security bearerAuth
+// @Tags User
+// @Produce json
+// @Success 200 {object} response.InfoResponse "User created successfully"
+// @Failure 401 {object} response.ErrorMessage "Acesso não autorizado."
+// @Router /user [post]
+
 func (instance UserHandler) CreateUser(context echo.Context) error {
 	var userDTO request.UserDTO
 
@@ -35,6 +46,17 @@ func (instance UserHandler) CreateUser(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "User created successfully"})
 }
 
+// LoginUser
+// @ID LoginUser
+// @Summary Realiza o login do usuário.
+// @Description Realiza o login do usuário.
+// @Security bearerAuth
+// @Tags User
+// @Produce json
+// @Success 200 {object} response.InfoResponse "User logged successfully"
+// @Failure 401 {object} response.ErrorMessage
+// @Router /user/login [post]
+
 func (instance UserHandler) LoginUser(context echo.Context) error {
 	var userDTO request.UserDTO
 
@@ -53,6 +75,17 @@ func (instance UserHandler) LoginUser(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "User logged successfully"})
 }
 
+// ListAllUsers
+// @ID ListAllUsers
+// @Summary Lista todos os usuários.
+// @Description Lista todos os usuários.
+// @Security bearerAuth
+// @Tags User
+// @Produce json
+// @Success 200 {object} []User
+// @Failure 401 {object} response.ErrorMessage
+// @Router /user [get]
+
 func (instance UserHandler) ListAllUsers(context echo.Context) error {
 	users, err := instance.service.ListAllUsers()
 
@@ -68,6 +101,18 @@ func (instance UserHandler) ListAllUsers(context echo.Context) error {
 
 	return context.JSON(http.StatusOK, usersResponse)
 }
+
+// GetUserByName
+// @ID GetUserByName
+// @Summary Busca um usuário pelo nome.
+// @Description Busca um usuário pelo nome.
+// @Security bearerAuth
+// @Tags User
+// @Produce json
+// @Param name path string true "Nome do usuário"
+// @Success 200 {object} []User
+// @Failure 401 {object} response.ErrorMessage
+// @Router /user/{name} [get]
 
 func (instance UserHandler) GetUserByName(context echo.Context) error {
 	var name string
@@ -90,9 +135,33 @@ func (instance UserHandler) GetUserByName(context echo.Context) error {
 
 }
 
+// UpdateUserByEmail
+// @ID UpdateUserByEmail
+// @Summary Atualiza um usuário pelo email.
+// @Description Atualiza um usuário pelo email.
+// @Security bearerAuth
+// @Tags User
+// @Produce json
+// @Param email path string true "Email do usuário"
+// @Success 200 {object} []User
+// @Failure 401 {object} response.ErrorMessage
+// @Router /user/{email} [put]
+
 func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
 	return context.JSON(http.StatusLocked, response.InfoResponse{Message: "Not implemented yet"})
 }
+
+// DeleteUserByEmail
+// @ID DeleteUserByEmail
+// @Summary Deleta um usuário pelo email.
+// @Description Deleta um usuário pelo email.
+// @Security bearerAuth
+// @Tags User
+// @Produce json
+// @Param email path string true "Email do usuário"
+// @Success 200 {object} []User
+// @Failure 401 {object} response.ErrorMessage
+// @Router /user/{email} [delete]
 
 func (instance UserHandler) DeleteUserByEmail(context echo.Context) error {
 	var email string

@@ -21,6 +21,17 @@ type api struct {
 	echoInstance *echo.Echo
 }
 
+// NewAPI
+// @title Reservify API
+// @version 1.0
+// @description Reserva de quartos para Hotéis
+// @contact.name Eduardo Melo
+// @contact.email deveduardomelo@gmail.com
+// @BasePath /api
+// @securityDefinitions.apikey bearerAuth
+// @in header
+// @name Authorization
+
 func NewAPI(options *Options) API {
 	echoInstance := echo.New()
 
