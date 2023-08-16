@@ -1,11 +1,13 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"reservify/internal/adapters/persistence/postgres/bridge"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
 	"time"
@@ -24,15 +26,36 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
-	_, err = conn.Exec(`
-		INSERT INTO "user" (id, name, cpf, phone, email, password, date_of_birth, admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-	`, u.ID(), u.Name(), u.CPF(), u.Phone(), u.Email(), u.Password(), u.DateOfBirth(), u.Admin())
+	defer instance.closeConnection(conn)
+
+	ctx := context.Background()
+
+	queries := bridge.New(conn)
+
+	err = queries.CreateUser(ctx, bridge.CreateUserParams{
+		ID:          u.ID(),
+		Name:        u.Name(),
+		Cpf:         u.CPF(),
+		Email:       u.Email(),
+		Password:    u.Password(),
+		Phone:       u.Phone(),
+		DateOfBirth: time.Now(),
+		Admin:       u.Admin(),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	})
 
 	if err != nil {
 		return fmt.Errorf("falha ao criar usuário: %v", err)
 	}
 
-	defer instance.closeConnection(conn)
+	//_, err = conn.Exec(`
+	//	INSERT INTO "user" (id, name, cpf, phone, email, password, date_of_birth, admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+	//`, u.ID(), u.Name(), u.CPF(), u.Phone(), u.Email(), u.Password(), u.DateOfBirth(), u.Admin())
+	//
+	//if err != nil {
+	//	return fmt.Errorf("falha ao criar usuário: %v", err)
+	//}
 
 	return nil
 }
