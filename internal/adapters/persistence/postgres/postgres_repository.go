@@ -46,7 +46,7 @@ func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
 		CREATE TABLE IF NOT EXISTS room (
     id UUID PRIMARY KEY,
                                     cod VARCHAR(255) NOT NULL UNIQUE,
-                                    number VARCHAR(255) NOT NULL,
+                                    number INTEGER NOT NULL,
     vacancies INTEGER NOT NULL,
     price DECIMAL(10,2) NOT NULL,
                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

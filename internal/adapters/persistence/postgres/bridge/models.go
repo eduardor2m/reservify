@@ -24,7 +24,7 @@ type Reservation struct {
 type Room struct {
 	ID        uuid.UUID
 	Cod       string
-	Number    string
+	Number    int32
 	Vacancies int32
 	Price     string
 	CreatedAt sql.NullTime

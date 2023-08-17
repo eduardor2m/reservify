@@ -20,7 +20,7 @@ INSERT INTO room (id, cod, number, vacancies, price, created_at, updated_at) VAL
 type CreateRoomParams struct {
 	ID        uuid.UUID
 	Cod       string
-	Number    string
+	Number    int32
 	Vacancies int32
 	Price     string
 	CreatedAt sql.NullTime

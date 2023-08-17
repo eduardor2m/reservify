@@ -144,7 +144,11 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 			WithEmail(userDB.Email).
 			WithPassword(userDB.Password).
 			WithDateOfBirth(userDB.DateOfBirth.String()).
+			WithCPF(userDB.Cpf).
+			WithPhone(userDB.Phone).
 			WithAdmin(userDB.Admin).
+			WithCreatedAt(userDB.CreatedAt).
+			WithUpdatedAt(userDB.UpdatedAt).
 			Build()
 
 		if err != nil {
@@ -166,30 +170,27 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 
 	defer instance.closeConnection(conn)
 
-	var name, email, password, dateOfBirth, cpf, phone string
-	var createdAt, updatedAt time.Time
-	var admin bool
-	var idUser uuid.UUID
+	queries := bridge.New(conn)
 
-	err = conn.QueryRow(`
-		SELECT id, name, email, password, cpf, phone, date_of_birth, admin, created_at, updated_at FROM "user" WHERE id = $1;
-	`, id).Scan(&idUser, &name, &email, &password, &cpf, &phone, &dateOfBirth, &admin, &createdAt, &updatedAt)
+	ctx := context.Background()
+
+	userDB, err := queries.FindByID(ctx, id)
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
 	}
 
 	userReceived, err := user.NewBuilder().
-		WithID(idUser).
-		WithName(name).
-		WithEmail(email).
-		WithCPF(cpf).
-		WithPhone(phone).
-		WithPassword(password).
-		WithDateOfBirth(dateOfBirth).
-		WithAdmin(admin).
-		WithCreatedAt(createdAt).
-		WithUpdatedAt(updatedAt).
+		WithID(userDB.ID).
+		WithName(userDB.Name).
+		WithEmail(userDB.Email).
+		WithPassword(userDB.Password).
+		WithDateOfBirth(userDB.DateOfBirth.String()).
+		WithCPF(userDB.Cpf).
+		WithPhone(userDB.Phone).
+		WithAdmin(userDB.Admin).
+		WithCreatedAt(userDB.CreatedAt).
+		WithUpdatedAt(userDB.UpdatedAt).
 		Build()
 
 	if err != nil {
@@ -257,7 +258,32 @@ func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, 
 }
 
 func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user.User) error {
-	fmt.Println(user, email)
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = queries.UpdateByEmail(ctx, bridge.UpdateByEmailParams{
+		Name:        user.Name(),
+		Cpf:         user.CPF(),
+		Email:       user.Email(),
+		Password:    user.Password(),
+		Phone:       user.Phone(),
+		DateOfBirth: time.Now(),
+		Admin:       user.Admin(),
+		UpdatedAt:   time.Now(),
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao atualizar usuário: %v", err)
+	}
 
 	return nil
 }
@@ -269,18 +295,19 @@ func (instance UserPostgresRepository) DeleteUserByEmail(email string) error {
 		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
-	_, err = conn.Exec(`
-		DELETE FROM "user" WHERE email = $1;
-	`, email)
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = queries.DeleteByEmail(ctx, email)
 
 	if err != nil {
 		return fmt.Errorf("falha ao deletar usuário: %v", err)
 	}
 
-	defer instance.closeConnection(conn)
-
 	return nil
-
 }
 
 func NewUserPostgresRepository(connectorManager connectorManager) *UserPostgresRepository {

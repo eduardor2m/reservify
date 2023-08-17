@@ -1,10 +1,14 @@
 package postgres
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
+	"reservify/internal/adapters/persistence/postgres/bridge"
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/repository"
+	"strconv"
 	"time"
 )
 
@@ -14,6 +18,21 @@ type RoomPostgresRepository struct {
 	connectorManager
 }
 
+func sqlNullTimeToTime(t sql.NullTime) *time.Time {
+	if t.Valid {
+		return &t.Time
+	}
+	return nil
+}
+
+func floatToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', 2, 64)
+}
+
+func stringToFloat(s string) (float64, error) {
+	return strconv.ParseFloat(s, 64)
+}
+
 func (instance RoomPostgresRepository) CreateRoom(u room.Room) error {
 	conn, err := instance.getConnection()
 
@@ -21,19 +40,23 @@ func (instance RoomPostgresRepository) CreateRoom(u room.Room) error {
 		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
-	stmt, err := conn.Prepare("INSERT INTO room (id, cod, number, vacancies, price, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7);")
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = queries.CreateRoom(ctx, bridge.CreateRoomParams{
+		ID:        u.ID(),
+		Cod:       u.Cod(),
+		Number:    int32(u.Number()),
+		Vacancies: int32(u.Vacancies()),
+		Price:     floatToString(u.Price()),
+	})
 
 	if err != nil {
 		return fmt.Errorf("falha ao criar usuário: %v", err)
 	}
-
-	_, err = stmt.Exec(u.ID(), u.Cod(), u.Number(), u.Vacancies(), u.Price(), time.Now(), time.Now())
-
-	if err != nil {
-		return err
-	}
-
-	defer instance.closeConnection(conn)
 
 	return nil
 }
@@ -45,40 +68,35 @@ func (instance RoomPostgresRepository) ListAllRooms() ([]room.Room, error) {
 		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
-	rows, err := conn.Query("SELECT * FROM room;")
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	roomsDB, err := queries.ListAllRooms(ctx)
 
 	if err != nil {
-		return nil, fmt.Errorf("falha ao obter usuários: %v", err)
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
 	}
 
 	var rooms []room.Room
 
-	for rows.Next() {
-		var id uuid.UUID
-		var cod string
-		var number int
-		var vacancies int
-		var price float64
-		var createdAt time.Time
-		var updatedAt time.Time
-
-		err = rows.Scan(&id, &cod, &number, &vacancies, &price, &createdAt, &updatedAt)
+	for _, roomDB := range roomsDB {
+		price, err := stringToFloat(roomDB.Price)
 
 		if err != nil {
-			return nil, fmt.Errorf("falha ao obter usuários: %v", err)
+			return nil, fmt.Errorf("falha ao obter usuário: %v", err)
 		}
 
-		newRoom, err := room.NewBuilder().WithID(id).WithCod(cod).WithNumber(number).WithVacancies(vacancies).WithPrice(price).WithCreatedAt(createdAt).WithUpdatedAt(updatedAt).Build()
+		roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).Build()
 
 		if err != nil {
-			return nil, fmt.Errorf("falha ao obter usuários: %v", err)
+			return nil, fmt.Errorf("falha ao obter usuário: %v", err)
 		}
 
-		rooms = append(rooms, *newRoom)
-
+		rooms = append(rooms, *roomBuild)
 	}
-
-	defer instance.closeConnection(conn)
 
 	return rooms, nil
 }
