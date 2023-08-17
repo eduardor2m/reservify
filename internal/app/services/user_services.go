@@ -43,12 +43,12 @@ func (instance *UserServices) LoginUser(email string, password string) (error, *
 }
 
 func (instance *UserServices) RentRoom(
-	id_user string,
-	id_room string,
-	check_in string,
-	check_out string,
+	idUser string,
+	idRoom string,
+	checkIn string,
+	checkOut string,
 ) error {
-	return instance.userRepository.RentRoom(id_user, id_room, check_in, check_out)
+	return instance.userRepository.RentRoom(idUser, idRoom, checkIn, checkOut)
 }
 
 func (instance *UserServices) ListAllUsers() ([]user.User, error) {
