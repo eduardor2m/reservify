@@ -16,6 +16,10 @@ type Room struct {
 }
 
 func (instance *Room) ID() uuid.UUID {
+	if instance.id == uuid.Nil {
+		instance.id = uuid.New()
+	}
+
 	return instance.id
 }
 

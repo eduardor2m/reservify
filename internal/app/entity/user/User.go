@@ -12,7 +12,7 @@ type User struct {
 	email       string
 	phone       string
 	password    string
-	dateOfBirth string
+	dateOfBirth time.Time
 	admin       bool
 	createdAt   time.Time
 	updatedAt   time.Time
@@ -42,7 +42,7 @@ func (instance *User) Password() string {
 	return instance.password
 }
 
-func (instance *User) DateOfBirth() string {
+func (instance *User) DateOfBirth() time.Time {
 	return instance.dateOfBirth
 }
 

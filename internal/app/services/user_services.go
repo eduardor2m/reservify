@@ -29,7 +29,7 @@ func (instance *UserServices) CreateUser(u user.User) error {
 
 	encryptedPasswordString := string(encryptedPassword)
 
-	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithDateOfBirth(u.DateOfBirth()).WithAdmin(u.Admin()).Build()
+	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithAdmin(u.Admin()).Build()
 
 	if err != nil {
 		return err
