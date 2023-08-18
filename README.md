@@ -42,12 +42,18 @@ go get ./...
 Renomei o arquivo `.env-example` para `.env` no diretório `./cmd/application/` do projeto e configure as seguintes variáveis:
 
 ```env
-DB_HOST=seu_host_do_banco_de_dados
+# SERVER
+SERVER_PORT=8080
+
+# DATABASE
+DB_NAME=CHANGE-ME
+DB_USER=CHANGE-ME
+DB_PASSWORD=CHANGE-ME
+DB_HOST=CHANGE-ME
 DB_PORT=5432
-DB_USER=seu_usuario_do_banco_de_dados
-DB_PASSWORD=sua_senha_do_banco_de_dados
-DB_NAME=nome_do_banco_de_dados
-JWT_SECRET=seu_segredo_jwt
+
+# JWT
+JWT_SECRET=CHANGE-ME
 ```
 
 ## Uso
