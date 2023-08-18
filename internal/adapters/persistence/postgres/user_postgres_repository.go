@@ -32,6 +32,10 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 
 	queries := bridge.New(conn)
 
+	if err != nil {
+		return fmt.Errorf("falha ao criar usuário: %v", err)
+	}
+
 	err = queries.CreateUser(ctx, bridge.CreateUserParams{
 		ID:          u.ID(),
 		Name:        u.Name(),
@@ -39,7 +43,7 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 		Email:       u.Email(),
 		Password:    u.Password(),
 		Phone:       u.Phone(),
-		DateOfBirth: time.Now(),
+		DateOfBirth: u.DateOfBirth(),
 		Admin:       u.Admin(),
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),

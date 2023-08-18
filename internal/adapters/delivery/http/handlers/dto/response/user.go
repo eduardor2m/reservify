@@ -24,7 +24,7 @@ func NewUser(user user.User) *User {
 		Email:       user.Email(),
 		CPF:         user.CPF(),
 		Phone:       user.Phone(),
-		DateOfBirth: user.DateOfBirth(),
+		DateOfBirth: user.DateOfBirth().String(),
 		Admin:       user.Admin(),
 		CreatedAt:   user.CreatedAt().String(),
 		UpdatedAt:   user.UpdatedAt().String(),

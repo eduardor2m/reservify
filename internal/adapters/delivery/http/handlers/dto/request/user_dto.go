@@ -6,6 +6,6 @@ type UserDTO struct {
 	Phone       string `json:"phone" example:"(11) 99999-9999"`
 	Email       string `json:"email" example:"johndoe@example.com"`
 	Password    string `json:"password" example:"123456"`
-	DateOfBirth string `json:"date_of_birth" example:"1990-01-01"`
+	DateOfBirth string `json:"date_of_birth" example:"01-01-2000"`
 	Admin       bool   `json:"admin" example:"false"`
 }
