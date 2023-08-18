@@ -15,7 +15,7 @@ Uma API de reserva de quartos para hotéis com autenticação e diferentes níve
 ## Pré-requisitos
 
 - Go (Golang) instalado: [Download](https://golang.org/dl/)
-- PostgreSQL instalado: [Download](https://www.postgresql.org/download/)
+- Docker instalado: [Download](https://www.docker.com/)
 
 ## Instalação
 
@@ -39,7 +39,7 @@ go get ./...
 
 4. Configure as variáveis de ambiente:
 
-Crie um arquivo `.env` na raiz do projeto e configure as seguintes variáveis:
+Renomei o arquivo `.env-example` para `.env` no diretório `./cmd/application/` do projeto e configure as seguintes variáveis:
 
 ```env
 DB_HOST=seu_host_do_banco_de_dados
@@ -55,16 +55,16 @@ JWT_SECRET=seu_segredo_jwt
 1. Execute a aplicação:
 
 ```bash
-go run main.go
+go run ./cmd/application/main.go
 ```
 
-2. Acesse a API em `http://localhost:8080`.
+2. Acesse a API em `http://localhost:8080/api/docs/index.html`.
 
 3. Consulte a documentação interativa da API para obter detalhes sobre os endpoints e como usá-los.
 
 ## Documentação
 
-A documentação da API foi gerada automaticamente e está disponível em `http://localhost:8080/docs` após iniciar a aplicação.
+A documentação da API foi gerada automaticamente e está disponível em `http://localhost:8080/api/docs/index.html` após iniciar a aplicação.
 
 ## Contribuição
 
