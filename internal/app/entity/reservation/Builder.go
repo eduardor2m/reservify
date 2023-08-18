@@ -1,4 +1,4 @@
-package guest
+package reservation
 
 import (
 	"github.com/google/uuid"
@@ -6,8 +6,8 @@ import (
 )
 
 type Builder struct {
-	Guest Guest
-	Err   error
+	Reservation Guest
+	Err         error
 }
 
 func NewBuilder() *Builder {
@@ -15,27 +15,27 @@ func NewBuilder() *Builder {
 }
 
 func (instance *Builder) WithID(id uuid.UUID) *Builder {
-	instance.Guest.id = id
+	instance.Reservation.id = id
 	return instance
 }
 
-func (instance *Builder) WithCPF(CPF string) *Builder {
-	instance.Guest.cpf = CPF
+func (instance *Builder) WithIdRoom(idRoom uuid.UUID) *Builder {
+	instance.Reservation.idRoom = idRoom
 	return instance
 }
 
-func (instance *Builder) WithName(name string) *Builder {
-	instance.Guest.name = name
+func (instance *Builder) WithIdUser(idUser uuid.UUID) *Builder {
+	instance.Reservation.idUser = idUser
 	return instance
 }
 
 func (instance *Builder) WithCreatedAt(createdAt time.Time) *Builder {
-	instance.Guest.createdAt = createdAt
+	instance.Reservation.createdAt = createdAt
 	return instance
 }
 
 func (instance *Builder) WithUpdatedAt(updatedAt time.Time) *Builder {
-	instance.Guest.updatedAt = updatedAt
+	instance.Reservation.updatedAt = updatedAt
 	return instance
 }
 
@@ -43,5 +43,5 @@ func (instance *Builder) Build() (*Guest, error) {
 	if instance.Err != nil {
 		return nil, instance.Err
 	}
-	return &instance.Guest, nil
+	return &instance.Reservation, nil
 }
