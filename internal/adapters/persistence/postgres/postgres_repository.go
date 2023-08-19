@@ -1,9 +1,10 @@
 package postgres
 
 import (
+	"log"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"log"
 )
 
 type connectorManager interface {
@@ -30,7 +31,7 @@ func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
     cpf VARCHAR(11) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(50) NOT NULL,
-    date_of_birth DATE NOT NULL,
+    date_of_birth VARCHAR(10) NOT NULL,
     password VARCHAR(255) NOT NULL,
     admin BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),

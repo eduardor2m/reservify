@@ -2,9 +2,10 @@ package user
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"regexp"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Builder struct {
@@ -93,19 +94,23 @@ func (instance *Builder) WithPassword(password string) *Builder {
 func (instance *Builder) WithDateOfBirth(dateOfBirth string) *Builder {
 	if len(dateOfBirth) < 10 {
 		instance.Err = fmt.Errorf("data de nascimento deve conter no mínimo 10 caracteres")
-		return instance
 	}
 
-	formatDate := "02-01-2006"
+	regex := `^(\d{2})\/(\d{2})\/(\d{4})$`
 
-	date, err := time.Parse(formatDate, dateOfBirth)
+	match, err := regexp.MatchString(regex, dateOfBirth)
 
 	if err != nil {
-		instance.Err = fmt.Errorf("falha ao converter data de nascimento: %v", err)
+		instance.Err = fmt.Errorf("falha ao validar data de nascimento: %v", err)
 		return instance
 	}
 
-	instance.User.dateOfBirth = date
+	if !match {
+		instance.Err = fmt.Errorf("data de nascimento inválida")
+		return instance
+	}
+
+	instance.User.dateOfBirth = dateOfBirth
 	return instance
 }
 

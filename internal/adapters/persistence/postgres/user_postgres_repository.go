@@ -3,14 +3,15 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"reservify/internal/adapters/persistence/postgres/bridge"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
 	"time"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var _ repository.UserLoader = &UserPostgresRepository{}
@@ -147,7 +148,7 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 			WithName(userDB.Name).
 			WithEmail(userDB.Email).
 			WithPassword(userDB.Password).
-			WithDateOfBirth(userDB.DateOfBirth.String()).
+			WithDateOfBirth(userDB.DateOfBirth).
 			WithCPF(userDB.Cpf).
 			WithPhone(userDB.Phone).
 			WithAdmin(userDB.Admin).
@@ -189,7 +190,7 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 		WithName(userDB.Name).
 		WithEmail(userDB.Email).
 		WithPassword(userDB.Password).
-		WithDateOfBirth(userDB.DateOfBirth.String()).
+		WithDateOfBirth(userDB.DateOfBirth).
 		WithCPF(userDB.Cpf).
 		WithPhone(userDB.Phone).
 		WithAdmin(userDB.Admin).
@@ -234,7 +235,8 @@ func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, 
 
 	for rows.Next() {
 		var id uuid.UUID
-		var name, email, password, dateOfBirth, createdAt, updatedAt string
+		var name, email, password, dateOfBirth string
+		var createdAt, updatedAt time.Time
 		var admin bool
 
 		err := rows.Scan(&id, &name, &email, &password, &dateOfBirth, &admin, &createdAt, &updatedAt)
@@ -280,7 +282,7 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user
 		Email:       user.Email(),
 		Password:    user.Password(),
 		Phone:       user.Phone(),
-		DateOfBirth: time.Now(),
+		DateOfBirth: user.DateOfBirth(),
 		Admin:       user.Admin(),
 		UpdatedAt:   time.Now(),
 	})

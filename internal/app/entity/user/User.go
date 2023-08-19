@@ -1,8 +1,9 @@
 package user
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
@@ -12,7 +13,7 @@ type User struct {
 	email       string
 	phone       string
 	password    string
-	dateOfBirth time.Time
+	dateOfBirth string
 	admin       bool
 	createdAt   time.Time
 	updatedAt   time.Time
@@ -42,7 +43,7 @@ func (instance *User) Password() string {
 	return instance.password
 }
 
-func (instance *User) DateOfBirth() time.Time {
+func (instance *User) DateOfBirth() string {
 	return instance.dateOfBirth
 }
 

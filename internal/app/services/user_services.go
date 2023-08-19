@@ -1,11 +1,12 @@
 package services
 
 import (
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var _ primary.UserManager = (*UserServices)(nil)
@@ -29,7 +30,7 @@ func (instance *UserServices) CreateUser(u user.User) error {
 
 	encryptedPasswordString := string(encryptedPassword)
 
-	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithAdmin(u.Admin()).Build()
+	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithDateOfBirth(u.DateOfBirth()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithAdmin(u.Admin()).Build()
 
 	if err != nil {
 		return err

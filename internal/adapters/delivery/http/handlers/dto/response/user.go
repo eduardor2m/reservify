@@ -1,8 +1,9 @@
 package response
 
 import (
-	"github.com/google/uuid"
 	"reservify/internal/app/entity/user"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
@@ -24,7 +25,7 @@ func NewUser(user user.User) *User {
 		Email:       user.Email(),
 		CPF:         user.CPF(),
 		Phone:       user.Phone(),
-		DateOfBirth: user.DateOfBirth().String(),
+		DateOfBirth: user.DateOfBirth(),
 		Admin:       user.Admin(),
 		CreatedAt:   user.CreatedAt().String(),
 		UpdatedAt:   user.UpdatedAt().String(),
