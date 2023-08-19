@@ -1,9 +1,11 @@
 package services
 
 import (
+	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -43,13 +45,28 @@ func (instance *UserServices) LoginUser(email string, password string) (error, *
 	return instance.userRepository.LoginUser(email, password)
 }
 
-func (instance *UserServices) RentRoom(
-	idUser string,
-	idRoom string,
-	checkIn string,
-	checkOut string,
+func (instance *UserServices) CreateReservation(
+	r reservation.Reservation,
 ) error {
-	return instance.userRepository.RentRoom(idUser, idRoom, checkIn, checkOut)
+	reservationUUID, err := uuid.NewUUID()
+
+	if err != nil {
+		return err
+	}
+
+	reservationTime := time.Now()
+
+	reservationFormatted, err := reservation.NewBuilder().WithID(reservationUUID).WithIdRoom(r.IDRoom()).WithIdUser(r.IDUser()).WithCheckIn(r.CheckIn()).WithCheckOut(r.CheckOut()).WithCreatedAt(reservationTime).WithUpdatedAt(reservationTime).Build()
+
+	if err != nil {
+		return err
+	}
+	
+	return instance.userRepository.CreateReservation(*reservationFormatted)
+}
+
+func (instance *UserServices) ListAllReservations() ([]reservation.Reservation, error) {
+	return instance.userRepository.ListAllReservations()
 }
 
 func (instance *UserServices) ListAllUsers() ([]user.User, error) {

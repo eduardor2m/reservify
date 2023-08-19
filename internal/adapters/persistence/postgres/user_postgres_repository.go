@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reservify/internal/adapters/persistence/postgres/bridge"
+	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
 	"time"
@@ -94,31 +95,76 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 	return nil, &tokenString
 }
 
-func (instance UserPostgresRepository) RentRoom(
-	idUser string,
-	idRoom string,
-	checkIn string,
-	checkOut string,
+func (instance UserPostgresRepository) CreateReservation(
+	reservation reservation.Reservation,
 ) error {
 	conn, err := instance.getConnection()
+
+	defer instance.closeConnection(conn)
 
 	if err != nil {
 		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
-	defer instance.closeConnection(conn)
+	queries := bridge.New(conn)
 
-	newReservationUUID, err := uuid.NewUUID()
+	ctx := context.Background()
 
-	_, err = conn.Exec(`
-		INSERT INTO reservation (id, id_user, id_room, check_in, check_out) VALUES ($1, $2, $3, $4, $5);
-	`, newReservationUUID, idUser, idRoom, checkIn, checkOut)
+	err = queries.CreateReservation(ctx, bridge.CreateReservationParams{
+		ID:      reservation.ID(),	
+		IDUser:  reservation.IDUser(),
+		IDRoom:  reservation.IDRoom(),
+		CheckIn: reservation.CheckIn(),
+		CheckOut: reservation.CheckOut(),
+	})
 
 	if err != nil {
-		return fmt.Errorf("falha ao alugar quarto: %v", err)
+		return fmt.Errorf("falha ao criar reserva: %v", err)
 	}
 
 	return nil
+}
+
+func (instance UserPostgresRepository) ListAllReservations() ([]reservation.Reservation, error) {
+	var reservations []reservation.Reservation
+
+	conn, err := instance.getConnection()
+
+	defer instance.closeConnection(conn)
+
+	if err != nil {
+		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	reservationsDB, err := queries.ListAllReservations(ctx)
+
+	if err != nil {
+		return reservations, fmt.Errorf("falha ao listar reservas: %v", err)
+	}
+
+	for _, reservationDB := range reservationsDB {
+		reservationReceived, err := reservation.NewBuilder().
+			WithID(reservationDB.ID).
+			WithIdUser(reservationDB.IDUser).
+			WithIdRoom(reservationDB.IDRoom).
+			WithCheckIn(reservationDB.CheckIn).
+			WithCheckOut(reservationDB.CheckOut).
+			WithCreatedAt(reservationDB.CreatedAt).
+			WithUpdatedAt(reservationDB.UpdatedAt).
+			Build()
+
+		if err != nil {
+			return reservations, fmt.Errorf("falha ao listar reservas: %v", err)
+		}
+
+		reservations = append(reservations, *reservationReceived)
+	}
+
+	return reservations, nil
 }
 
 func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {

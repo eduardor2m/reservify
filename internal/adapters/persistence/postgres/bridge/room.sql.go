@@ -7,7 +7,7 @@ package bridge
 
 import (
 	"context"
-	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -23,8 +23,8 @@ type CreateRoomParams struct {
 	Number    int32
 	Vacancies int32
 	Price     string
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) error {

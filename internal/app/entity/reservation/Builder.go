@@ -1,12 +1,13 @@
 package reservation
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Builder struct {
-	Reservation Guest
+	Reservation Reservation
 	Err         error
 }
 
@@ -29,6 +30,16 @@ func (instance *Builder) WithIdUser(idUser uuid.UUID) *Builder {
 	return instance
 }
 
+func (instance *Builder) WithCheckIn(checkIn string) *Builder {
+	instance.Reservation.checkIn = checkIn
+	return instance
+}
+
+func (instance *Builder) WithCheckOut(checkOut string) *Builder {
+	instance.Reservation.checkOut = checkOut
+	return instance
+}
+
 func (instance *Builder) WithCreatedAt(createdAt time.Time) *Builder {
 	instance.Reservation.createdAt = createdAt
 	return instance
@@ -39,7 +50,7 @@ func (instance *Builder) WithUpdatedAt(updatedAt time.Time) *Builder {
 	return instance
 }
 
-func (instance *Builder) Build() (*Guest, error) {
+func (instance *Builder) Build() (*Reservation, error) {
 	if instance.Err != nil {
 		return nil, instance.Err
 	}

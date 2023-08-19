@@ -5,7 +5,6 @@
 package bridge
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,10 +14,10 @@ type Reservation struct {
 	ID        uuid.UUID
 	IDUser    uuid.UUID
 	IDRoom    uuid.UUID
-	CheckIn   time.Time
-	CheckOut  time.Time
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	CheckIn   string
+	CheckOut  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Room struct {
@@ -27,8 +26,8 @@ type Room struct {
 	Number    int32
 	Vacancies int32
 	Price     string
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type User struct {

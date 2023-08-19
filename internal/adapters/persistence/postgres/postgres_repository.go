@@ -50,8 +50,8 @@ func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
                                     number INTEGER NOT NULL,
     vacancies INTEGER NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 		    		);
 	`)
 
@@ -65,10 +65,10 @@ func (dcm *DatabaseConnectorManager) getConnection() (*sqlx.DB, error) {
                                              id UUID PRIMARY KEY,
                                              id_user UUID NOT NULL,
                                              id_room UUID NOT NULL,
-                                                check_in DATE NOT NULL,
-                                                check_out DATE NOT NULL,
-                                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                                check_in VARCHAR(10) NOT NULL,
+    check_out VARCHAR(10) NOT NULL,
+                                                created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
                                                 FOREIGN KEY (id_user) REFERENCES "user"(id),
                                                 FOREIGN KEY (id_room) REFERENCES room(id)
 		    		);

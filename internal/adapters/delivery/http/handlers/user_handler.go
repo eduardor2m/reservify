@@ -1,13 +1,15 @@
 package handlers
 
 import (
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"reservify/internal/adapters/delivery/http/handlers/dto/request"
 	"reservify/internal/adapters/delivery/http/handlers/dto/response"
+	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 type UserHandler struct {
@@ -121,7 +123,7 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.NewUser(*userReceived))
 }
 
-func (instance UserHandler) RentRoom(context echo.Context) error {
+func (instance UserHandler) CreateReservation(context echo.Context) error {
 	var reservationDTO request.ReservationDTO
 
 	err := context.Bind(&reservationDTO)
@@ -130,13 +132,36 @@ func (instance UserHandler) RentRoom(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.RentRoom(reservationDTO.IdUser, reservationDTO.IdRoom, reservationDTO.CheckIn, reservationDTO.CheckOut)
+	reservationReceived, err := reservation.NewBuilder().WithIdRoom(reservationDTO.IdRoom).WithIdUser(reservationDTO.IdUser).WithCheckIn(reservationDTO.CheckIn).WithCheckOut(reservationDTO.CheckOut).Build()
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	err = instance.service.CreateReservation(*reservationReceived)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room rented successfully"})
+}
+
+func (instance UserHandler) ListAllReservations(context echo.Context) error {
+	reservations, err := instance.service.ListAllReservations()
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	var reservationsResponse []response.Reservation
+
+	for _, reservationDB := range reservations {
+		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
+	}
+
+	return context.JSON(http.StatusOK, reservationsResponse)
+
 }
 
 // GetUserByName

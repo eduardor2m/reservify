@@ -1,8 +1,10 @@
 package request
 
+import "github.com/google/uuid"
+
 type ReservationDTO struct {
-	IdUser   string `json:"id_user"`
-	IdRoom   string `json:"id_room"`
+	IdUser   uuid.UUID `json:"id_user"`
+	IdRoom   uuid.UUID `json:"id_room"`
 	CheckIn  string `json:"check_in"`
 	CheckOut string `json:"check_out"`
 }

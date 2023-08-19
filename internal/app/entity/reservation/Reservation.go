@@ -1,44 +1,45 @@
 package reservation
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-type Guest struct {
+type Reservation struct {
 	id        uuid.UUID
 	idUser    uuid.UUID
 	idRoom    uuid.UUID
-	checkIn   time.Time
-	checkOut  time.Time
+	checkIn   string
+	checkOut  string
 	createdAt time.Time
 	updatedAt time.Time
 }
 
-func (instance *Guest) ID() uuid.UUID {
+func (instance *Reservation) ID() uuid.UUID {
 	return instance.id
 }
 
-func (instance *Guest) IDUser() uuid.UUID {
+func (instance *Reservation) IDUser() uuid.UUID {
 	return instance.idUser
 }
 
-func (instance *Guest) IDRoom() uuid.UUID {
+func (instance *Reservation) IDRoom() uuid.UUID {
 	return instance.idRoom
 }
 
-func (instance *Guest) CheckIn() time.Time {
+func (instance *Reservation) CheckIn() string {
 	return instance.checkIn
 }
 
-func (instance *Guest) CheckOut() time.Time {
+func (instance *Reservation) CheckOut() string {
 	return instance.checkOut
 }
 
-func (instance *Guest) CreatedAt() time.Time {
+func (instance *Reservation) CreatedAt() time.Time {
 	return instance.createdAt
 }
 
-func (instance *Guest) UpdatedAt() time.Time {
+func (instance *Reservation) UpdatedAt() time.Time {
 	return instance.updatedAt
 }

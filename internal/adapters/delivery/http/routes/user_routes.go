@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"github.com/labstack/echo/v4"
 	"reservify/internal/adapters/delivery/http/dicontainer"
+
+	"github.com/labstack/echo/v4"
 )
 
 func loadUserRoutes(group *echo.Group) {
@@ -11,7 +12,8 @@ func loadUserRoutes(group *echo.Group) {
 
 	userGroup.POST("", userHandlers.CreateUser)
 	userGroup.POST("/login", userHandlers.LoginUser)
-	userGroup.POST("/rent", userHandlers.RentRoom)
+	userGroup.POST("/reservation", userHandlers.CreateReservation)
+	userGroup.GET("/reservation", userHandlers.ListAllReservations)
 	userGroup.GET("", userHandlers.ListAllUsers)
 	userGroup.GET("/id/:id", userHandlers.GetUserByID)
 	userGroup.GET("/:name", userHandlers.GetUserByName)

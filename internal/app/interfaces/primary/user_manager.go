@@ -1,14 +1,17 @@
 package primary
 
 import (
-	"github.com/google/uuid"
+	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
+
+	"github.com/google/uuid"
 )
 
 type UserManager interface {
 	CreateUser(user user.User) error
 	LoginUser(email string, password string) (error, *string)
-	RentRoom(idUser string, idRoom string, checkIn string, checkOut string) error
+	CreateReservation(reservation reservation.Reservation) error
+	ListAllReservations() ([]reservation.Reservation, error)
 	ListAllUsers() ([]user.User, error)
 	GetUserByID(id uuid.UUID) (*user.User, error)
 	GetUserByName(name string) ([]user.User, error)
