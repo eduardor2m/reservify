@@ -40,6 +40,36 @@ func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) error {
 	return err
 }
 
+const deleteRoomById = `-- name: DeleteRoomById :exec
+
+DELETE FROM room WHERE id = $1
+`
+
+func (q *Queries) DeleteRoomById(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteRoomById, id)
+	return err
+}
+
+const findRoomByCod = `-- name: FindRoomByCod :one
+
+SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room WHERE cod = $1
+`
+
+func (q *Queries) FindRoomByCod(ctx context.Context, cod string) (Room, error) {
+	row := q.db.QueryRowContext(ctx, findRoomByCod, cod)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.Cod,
+		&i.Number,
+		&i.Vacancies,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findRoomById = `-- name: FindRoomById :one
 
 SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room WHERE id = $1

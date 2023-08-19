@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"github.com/labstack/echo/v4"
 	"reservify/internal/adapters/delivery/http/dicontainer"
+
+	"github.com/labstack/echo/v4"
 )
 
 func loadRoomRoutes(group *echo.Group) {
@@ -12,4 +13,6 @@ func loadRoomRoutes(group *echo.Group) {
 	roomGroup.POST("", roomHandlers.CreateRoom)
 	roomGroup.GET("", roomHandlers.ListAllRooms)
 	roomGroup.GET("/:id", roomHandlers.GetRoomByID)
+	roomGroup.GET("/cod/:cod", roomHandlers.GetRoomByCod)
+	roomGroup.DELETE("/:id", roomHandlers.DeleteRoomByID)
 }

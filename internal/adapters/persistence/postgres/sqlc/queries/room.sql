@@ -9,3 +9,11 @@ SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room ORDER
 -- name: FindRoomById :one
 
 SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room WHERE id = $1;
+
+-- name: FindRoomByCod :one
+
+SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room WHERE cod = $1;
+
+-- name: DeleteRoomById :exec
+
+DELETE FROM room WHERE id = $1;

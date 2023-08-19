@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"reservify/internal/adapters/delivery/http/handlers/dto/request"
 	"reservify/internal/adapters/delivery/http/handlers/dto/response"
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/primary"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 type RoomHandler struct {
@@ -61,6 +62,33 @@ func (instance RoomHandler) GetRoomByID(context echo.Context) error {
 	}
 
 	return context.JSON(http.StatusOK, response.NewRoom(*roomReceived))
+}
+
+func (instance RoomHandler) GetRoomByCod(context echo.Context) error {
+	cod := context.Param("cod")
+
+	roomReceived, err := instance.service.GetRoomByCod(cod)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.NewRoom(*roomReceived))
+}
+
+func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
+	id := context.Param("id")
+
+	roomID, err := uuid.Parse(id)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	err = instance.service.DeleteRoomByID(roomID)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room deleted successfully"})
 }
 
 func NewRoomHandler(service primary.RoomManager) *RoomHandler {

@@ -41,7 +41,7 @@ func (instance *UserServices) CreateUser(u user.User) error {
 	return instance.userRepository.CreateUser(*formattedUser)
 }
 
-func (instance *UserServices) LoginUser(email string, password string) (error, *string) {
+func (instance *UserServices) LoginUser(email string, password string) (*string, error) {
 	return instance.userRepository.LoginUser(email, password)
 }
 
@@ -63,6 +63,22 @@ func (instance *UserServices) CreateReservation(
 	}
 	
 	return instance.userRepository.CreateReservation(*reservationFormatted)
+}
+
+func (instance *UserServices) GetReservationByID(id uuid.UUID) (*reservation.Reservation, error) {
+	return instance.userRepository.GetReservationByID(id)
+}
+
+func (instance *UserServices) GetReservationByIDRoom(idRoom uuid.UUID) ([]reservation.Reservation, error) {
+	return instance.userRepository.GetReservationByIDRoom(idRoom)
+}
+
+func (instance *UserServices) GetReservationByIDUser(idUser uuid.UUID) ([]reservation.Reservation, error) {
+	return instance.userRepository.GetReservationByIDUser(idUser)
+}
+
+func (instance *UserServices) DeleteReservationByID(id uuid.UUID) error {
+	return instance.userRepository.DeleteReservationByID(id)
 }
 
 func (instance *UserServices) ListAllReservations() ([]reservation.Reservation, error) {

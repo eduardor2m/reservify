@@ -1,10 +1,11 @@
 package services
 
 import (
-	"github.com/google/uuid"
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
+
+	"github.com/google/uuid"
 )
 
 var _ primary.RoomManager = (*RoomServices)(nil)
@@ -31,6 +32,14 @@ func (instance *RoomServices) ListAllRooms() ([]room.Room, error) {
 
 func (instance *RoomServices) GetRoomByID(id uuid.UUID) (*room.Room, error) {
 	return instance.roomRepository.GetRoomByID(id)
+}
+
+func (instance *RoomServices) GetRoomByCod(cod string) (*room.Room, error) {
+	return instance.roomRepository.GetRoomByCod(cod)
+}
+
+func (instance *RoomServices) DeleteRoomByID(id uuid.UUID) error {
+	return instance.roomRepository.DeleteRoomByID(id)
 }
 
 func NewRoomServices(roomRepository repository.RoomLoader) *RoomServices {
