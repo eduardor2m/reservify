@@ -6,7 +6,7 @@ import (
 	"reservify/internal/adapters/persistence/postgres/bridge"
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/repository"
-	"strconv"
+	"reservify/internal/utils/converters"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,14 +16,6 @@ var _ repository.RoomLoader = &RoomPostgresRepository{}
 
 type RoomPostgresRepository struct {
 	connectorManager
-}
-
-func FloatToString(f float64) string {
-	return strconv.FormatFloat(f, 'f', 2, 64)
-}
-
-func StringToFloat(s string) (float64, error) {
-	return strconv.ParseFloat(s, 64)
 }
 
 func (instance RoomPostgresRepository) CreateRoom(u room.Room) error {
@@ -39,12 +31,13 @@ func (instance RoomPostgresRepository) CreateRoom(u room.Room) error {
 
 	ctx := context.Background()
 
+	
 	err = queries.CreateRoom(ctx, bridge.CreateRoomParams{
 		ID:        u.ID(),
 		Cod:       u.Cod(),
 		Number:    int32(u.Number()),
 		Vacancies: int32(u.Vacancies()),
-		Price:     FloatToString(u.Price()),
+		Price:     converters.FloatToString(u.Price()),
 	})
 
 	if err != nil {
@@ -76,7 +69,7 @@ func (instance RoomPostgresRepository) ListAllRooms() ([]room.Room, error) {
 	var rooms []room.Room
 
 	for _, roomDB := range roomsDB {
-		price, err := StringToFloat(roomDB.Price)
+		price, err := converters.StringToFloat(roomDB.Price)
 
 		if err != nil {
 			return nil, fmt.Errorf("falha ao obter usuário: %v", err)
@@ -152,7 +145,7 @@ func (instance RoomPostgresRepository) GetRoomByCod(cod string) (*room.Room, err
 		return nil, fmt.Errorf("falha ao obter quarto: %v", err)
 	}
 
-	price, err := StringToFloat(roomDB.Price)
+	price, err := converters.StringToFloat(roomDB.Price)
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao obter quarto: %v", err)

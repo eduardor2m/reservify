@@ -8,6 +8,7 @@ import (
 	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
+	"reservify/internal/utils/converters"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -21,18 +22,6 @@ type UserPostgresRepository struct {
 	connectorManager
 }
 
-func converterFromStringToTime(date string) (time.Time, error) {
-	dateFormat := "02/01/2006"
-
-	dateTime, err := time.Parse(dateFormat, date)
-
-	if err != nil {
-		return time.Time{}, fmt.Errorf("falha ao converter data: %v", err)
-	}
-
-	return dateTime, nil
-}
-
 func checkIfRoomIsAvailable(ctx context.Context, queries bridge.Queries, reservation reservation.Reservation) error {
     reservationsDB, err := queries.GetReservationByIDRoom(ctx, reservation.IDRoom())
 
@@ -40,23 +29,23 @@ func checkIfRoomIsAvailable(ctx context.Context, queries bridge.Queries, reserva
         return fmt.Errorf("falha ao obter reservas do banco de dados: %v", err)
     }
 
-    newCheckIn, err := converterFromStringToTime(reservation.CheckIn())
+    newCheckIn, err := converters.ConverterFromStringToTime(reservation.CheckIn())
     if err != nil {
         return fmt.Errorf("falha ao converter data de check-in: %v", err)
     }
 
-    newCheckOut, err := converterFromStringToTime(reservation.CheckOut())
+    newCheckOut, err := converters.ConverterFromStringToTime(reservation.CheckOut())
     if err != nil {
         return fmt.Errorf("falha ao converter data de check-out: %v", err)
     }
 
     for _, reservationDB := range reservationsDB {
-        dbCheckIn, err := converterFromStringToTime(reservationDB.CheckIn)
+        dbCheckIn, err := converters.ConverterFromStringToTime(reservationDB.CheckIn)
         if err != nil {
             return fmt.Errorf("falha ao converter data de check-in do banco de dados: %v", err)
         }
 
-        dbCheckOut, err := converterFromStringToTime(reservationDB.CheckOut)
+        dbCheckOut, err := converters.ConverterFromStringToTime(reservationDB.CheckOut)
         if err != nil {
             return fmt.Errorf("falha ao converter data de check-out do banco de dados: %v", err)
         }

@@ -1,9 +1,10 @@
 package routes
 
 import (
+	_ "reservify/internal/adapters/delivery/docs"
+
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	_ "reservify/internal/adapters/delivery/docs"
 )
 
 type Routes interface {
