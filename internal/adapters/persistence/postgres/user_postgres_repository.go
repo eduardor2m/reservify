@@ -21,6 +21,55 @@ type UserPostgresRepository struct {
 	connectorManager
 }
 
+func converterFromStringToTime(date string) (time.Time, error) {
+	dateFormat := "02/01/2006"
+
+	dateTime, err := time.Parse(dateFormat, date)
+
+	if err != nil {
+		return time.Time{}, fmt.Errorf("falha ao converter data: %v", err)
+	}
+
+	return dateTime, nil
+}
+
+func checkIfRoomIsAvailable(ctx context.Context, queries bridge.Queries, reservation reservation.Reservation) error {
+    reservationsDB, err := queries.GetReservationByIDRoom(ctx, reservation.IDRoom())
+
+    if err != nil {
+        return fmt.Errorf("falha ao obter reservas do banco de dados: %v", err)
+    }
+
+    newCheckIn, err := converterFromStringToTime(reservation.CheckIn())
+    if err != nil {
+        return fmt.Errorf("falha ao converter data de check-in: %v", err)
+    }
+
+    newCheckOut, err := converterFromStringToTime(reservation.CheckOut())
+    if err != nil {
+        return fmt.Errorf("falha ao converter data de check-out: %v", err)
+    }
+
+    for _, reservationDB := range reservationsDB {
+        dbCheckIn, err := converterFromStringToTime(reservationDB.CheckIn)
+        if err != nil {
+            return fmt.Errorf("falha ao converter data de check-in do banco de dados: %v", err)
+        }
+
+        dbCheckOut, err := converterFromStringToTime(reservationDB.CheckOut)
+        if err != nil {
+            return fmt.Errorf("falha ao converter data de check-out do banco de dados: %v", err)
+        }
+
+        if (newCheckIn.Equal(dbCheckIn) || newCheckIn.Equal(dbCheckOut)) ||
+           (newCheckOut.Equal(dbCheckIn) || newCheckOut.Equal(dbCheckOut)) {
+            return fmt.Errorf("falha ao criar reserva: quarto indisponível")
+        }
+    }
+
+    return nil
+}
+
 func (instance UserPostgresRepository) CreateUser(u user.User) error {
 	conn, err := instance.getConnection()
 
@@ -113,6 +162,33 @@ func (instance UserPostgresRepository) CreateReservation(
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	// func checkIfRoomIsAvailable() error {
+	// 	reservationsDB, err := queries.GetReservationByIDRoom(ctx, id)
+
+	// 	if err != nil {
+	// 		return fmt.Errorf("falha ao criar reserva: %v", err)
+	// 	}
+
+	// 	for _, reservationDB := range reservationsDB {
+	// 		if reservationDB.CheckIn.Before(reservation.CheckIn()) && reservationDB.CheckOut.After(reservation.CheckIn()) {
+	// 			return fmt.Errorf("falha ao criar reserva: quarto indisponível")
+	// 		}
+
+	// 		if reservationDB.CheckIn.Before(reservation.CheckOut()) && reservationDB.CheckOut.After(reservation.CheckOut()) {
+	// 			return fmt.Errorf("falha ao criar reserva: quarto indisponível")
+	// 		}
+	// 	}
+
+	// 	return nil
+	// }
+
+	err = checkIfRoomIsAvailable(ctx, *queries, reservation)
+
+	if err != nil {
+		return fmt.Errorf("falha ao criar reserva: %v", err)
+	}
+
 
 	err = queries.CreateReservation(ctx, bridge.CreateReservationParams{
 		ID:      reservation.ID(),	
