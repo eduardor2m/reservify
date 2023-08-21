@@ -1,8 +1,10 @@
 package room
 
 import (
-	"github.com/google/uuid"
+	"reservify/internal/app/entity/image"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Room struct {
@@ -13,6 +15,7 @@ type Room struct {
 	price     float64
 	createdAt time.Time
 	updatedAt time.Time
+	Image []image.Image
 }
 
 func (instance *Room) ID() uuid.UUID {

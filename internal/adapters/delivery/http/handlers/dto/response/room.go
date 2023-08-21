@@ -1,8 +1,9 @@
 package response
 
 import (
-	"github.com/google/uuid"
 	"reservify/internal/app/entity/room"
+
+	"github.com/google/uuid"
 )
 
 type Room struct {
@@ -13,6 +14,7 @@ type Room struct {
 	Price     float64   `json:"price"`
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
+	Images		*[]Image  `json:"images"`
 }
 
 func NewRoom(room room.Room) *Room {
@@ -24,5 +26,6 @@ func NewRoom(room room.Room) *Room {
 		Price:     room.Price(),
 		CreatedAt: room.CreatedAt().String(),
 		UpdatedAt: room.UpdatedAt().String(),
+		Images: 	NewImage(room.Image),
 	}
 }

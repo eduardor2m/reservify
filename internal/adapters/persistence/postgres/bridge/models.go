@@ -10,6 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type Image struct {
+	IDRoom   uuid.UUID
+	ImageUrl string
+}
+
 type Reservation struct {
 	ID        uuid.UUID
 	IDUser    uuid.UUID

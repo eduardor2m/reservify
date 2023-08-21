@@ -42,6 +42,14 @@ func (instance *RoomServices) DeleteRoomByID(id uuid.UUID) error {
 	return instance.roomRepository.DeleteRoomByID(id)
 }
 
+func (instance *RoomServices) AddImageToRoomById(id uuid.UUID, image_url string) error {
+	return instance.roomRepository.AddImageToRoomById(id, image_url)
+}
+
+func (instance *RoomServices) ListAllImagesByRoomID(id uuid.UUID) (*room.Room, error) {
+	return instance.roomRepository.ListAllImagesByRoomID(id)
+}
+
 func NewRoomServices(roomRepository repository.RoomLoader) *RoomServices {
 	return &RoomServices{
 		roomRepository: roomRepository,
