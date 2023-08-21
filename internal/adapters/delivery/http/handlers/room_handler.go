@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"reservify/internal/adapters/delivery/http/handlers/dto/request"
 	"reservify/internal/adapters/delivery/http/handlers/dto/response"
@@ -89,6 +90,43 @@ func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 	}
 
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room deleted successfully"})
+}
+
+func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
+
+
+	var imageDTO request.ImageDTO
+
+	err := context.Bind(&imageDTO)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	fmt.Println(imageDTO)
+
+	err = instance.service.AddImageToRoomById(imageDTO.IdUser, imageDTO.ImageUrl)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Image added successfully"})
+}
+
+func (instance RoomHandler) ListAllRoomsWithImages(context echo.Context) error {
+	id := context.Param("id")
+
+	idUUID, err := uuid.Parse(id)
+
+	room, err := instance.service.ListAllImagesByRoomID(idUUID)
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	var roomsResponse response.Room
+
+	roomsResponse = *response.NewRoom(*room)
+
+	return context.JSON(http.StatusOK, roomsResponse)
 }
 
 func NewRoomHandler(service primary.RoomManager) *RoomHandler {

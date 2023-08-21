@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reservify/internal/adapters/persistence/postgres/bridge"
+	"reservify/internal/app/entity/image"
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/repository"
 	"reservify/internal/utils/converters"
@@ -183,6 +184,88 @@ func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (instance RoomPostgresRepository) AddImageToRoomById(id uuid.UUID, image string) error {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = queries.AddImageToRoomByID(ctx, 
+		bridge.AddImageToRoomByIDParams{
+			IDRoom:    id,
+			ImageUrl: image,
+		},
+	)
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	return nil
+}
+
+func (instance RoomPostgresRepository) ListAllImagesByRoomID(id uuid.UUID) (*room.Room, error) {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	imagesDB, err := queries.ListAllImagesByRoomID(ctx, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	roomDB, err := queries.FindRoomById(ctx, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	price, err := converters.StringToFloat(roomDB.Price)
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).Build()
+
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+	}
+
+	var imagesBuild []image.Image
+
+	for _, imageDb := range imagesDB {
+		imageBuild, err := image.NewBuilder().WithIDRoom(imageDb.IDRoom).WithImageUrl(imageDb.ImageUrl).Build()
+
+		if err != nil {
+			return nil, fmt.Errorf("falha ao obter usuário: %v", err)
+		}
+
+		imagesBuild = append(imagesBuild, *imageBuild)
+	}
+
+	roomBuild.Image = imagesBuild
+
+
+	return roomBuild, nil
 }
 
 func NewRoomPostgresRepository(connectorManager connectorManager) *RoomPostgresRepository {
