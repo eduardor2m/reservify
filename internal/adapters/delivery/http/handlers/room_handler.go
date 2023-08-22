@@ -17,6 +17,7 @@ type RoomHandler struct {
 
 func (instance RoomHandler) CreateRoom(context echo.Context) error {
 	var roomDTO request.RoomDTO
+	token := context.Request().Header.Get("Authorization")
 
 	err := context.Bind(&roomDTO)
 	if err != nil {
@@ -28,7 +29,7 @@ func (instance RoomHandler) CreateRoom(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.CreateRoom(*roomReceived)
+	err = instance.service.CreateRoom(*roomReceived, token)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
@@ -87,13 +88,14 @@ func (instance RoomHandler) GetRoomByCod(context echo.Context) error {
 
 func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 	id := context.Param("id")
+	token := context.Request().Header.Get("Authorization")
 
 	roomID, err := uuid.Parse(id)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.DeleteRoomByID(roomID)
+	err = instance.service.DeleteRoomByID(roomID, token)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
@@ -103,13 +105,14 @@ func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 
 func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 	var imageDTO request.ImageDTO
+	token := context.Request().Header.Get("Authorization")
 
 	err := context.Bind(&imageDTO)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.AddImageToRoomByRoomID(imageDTO.IdUser, imageDTO.ImageUrl)
+	err = instance.service.AddImageToRoomByRoomID(imageDTO.IdUser, imageDTO.ImageUrl, token)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}

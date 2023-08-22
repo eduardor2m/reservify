@@ -121,7 +121,9 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	userReceived, err := instance.service.GetUserByID(userID)
+	token := context.Request().Header.Get("Authorization")
+
+	userReceived, err := instance.service.GetUserByID(userID, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -144,8 +146,9 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 
 func (instance UserHandler) GetUsersByName(context echo.Context) error {
 	name := context.Param("name")
+	token := context.Request().Header.Get("Authorization")
 
-	users, err := instance.service.GetUsersByName(name)
+	users, err := instance.service.GetUsersByName(name, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -195,8 +198,9 @@ func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
 
 func (instance UserHandler) DeleteUserByEmail(context echo.Context) error {
 	email := context.Param("email")
+	token := context.Request().Header.Get("Authorization")
 
-	err := instance.service.DeleteUserByEmail(email)
+	err := instance.service.DeleteUserByEmail(email, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})

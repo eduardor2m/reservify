@@ -50,20 +50,20 @@ func (instance *UserServices) ListAllUsers(tokenJwt string) ([]user.User, error)
 	return instance.userRepository.ListAllUsers(tokenJwt)
 }
 
-func (instance *UserServices) GetUserByID(id uuid.UUID) (*user.User, error) {
-	return instance.userRepository.GetUserByID(id)
+func (instance *UserServices) GetUserByID(id uuid.UUID, tokenJwt string) (*user.User, error) {
+	return instance.userRepository.GetUserByID(id, tokenJwt)
 }
 
-func (instance *UserServices) GetUsersByName(name string) ([]user.User, error) {
-	return instance.userRepository.GetUsersByName(name)
+func (instance *UserServices) GetUsersByName(name string, tokenJwt string) ([]user.User, error) {
+	return instance.userRepository.GetUsersByName(name, tokenJwt)
 }
 
-func (instance *UserServices) UpdateUserByEmail(email string, user user.User) error {
-	return instance.userRepository.UpdateUserByEmail(email, user)
+func (instance *UserServices) UpdateUserByEmail(email string, tokenJwt string, user user.User) error {
+	return instance.userRepository.UpdateUserByEmail(email, tokenJwt, user)
 }
 
-func (instance *UserServices) DeleteUserByEmail(email string) error {
-	return instance.userRepository.DeleteUserByEmail(email)
+func (instance *UserServices) DeleteUserByEmail(email string, tokenJwt string) error {
+	return instance.userRepository.DeleteUserByEmail(email, tokenJwt)
 }
 
 func NewUserServices(userRepository repository.UserLoader) *UserServices {

@@ -18,7 +18,7 @@ type RoomPostgresRepository struct {
 	connectorManager
 }
 
-func (instance RoomPostgresRepository) CreateRoom(u room.Room) error {
+func (instance RoomPostgresRepository) CreateRoom(u room.Room, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -30,6 +30,12 @@ func (instance RoomPostgresRepository) CreateRoom(u room.Room) error {
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = queries.CreateRoom(ctx, bridge.CreateRoomParams{
 		ID:        u.ID(),
@@ -157,7 +163,7 @@ func (instance RoomPostgresRepository) GetRoomByCod(cod string) (*room.Room, err
 
 }
 
-func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID) error {
+func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -169,6 +175,12 @@ func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID) error {
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = queries.DeleteRoomById(ctx, id)
 
@@ -179,7 +191,7 @@ func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID) error {
 	return nil
 }
 
-func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string) error {
+func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -191,6 +203,12 @@ func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imag
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = queries.AddImageToRoomByRoomID(ctx,
 		bridge.AddImageToRoomByRoomIDParams{

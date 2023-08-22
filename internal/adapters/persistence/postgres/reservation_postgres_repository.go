@@ -56,6 +56,7 @@ func checkIfRoomIsAvailable(ctx context.Context, queries bridge.Queries, reserva
 
 func (instance ReservationPostgresRepository) CreateReservation(
 	reservation reservation.Reservation,
+	tokenJwt string,
 ) error {
 	conn, err := instance.getConnection()
 
@@ -68,6 +69,12 @@ func (instance ReservationPostgresRepository) CreateReservation(
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = checkIfRoomIsAvailable(ctx, *queries, reservation)
 
@@ -90,7 +97,50 @@ func (instance ReservationPostgresRepository) CreateReservation(
 	return nil
 }
 
-func (instance ReservationPostgresRepository) ListAllReservations() ([]reservation.Reservation, error) {
+func (instance ReservationPostgresRepository) CreateMyReservation(
+	reservation reservation.Reservation,
+	tokenJwt string,
+) error {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = checkIfUserLogged(tokenJwt, reservation.IDUser(), *queries, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = checkIfRoomIsAvailable(ctx, *queries, reservation)
+
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	err = queries.CreateReservation(ctx, bridge.CreateReservationParams{
+		ID:       reservation.ID(),
+		IDUser:   reservation.IDUser(),
+		IDRoom:   reservation.IDRoom(),
+		CheckIn:  reservation.CheckIn(),
+		CheckOut: reservation.CheckOut(),
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao criar reserva: %v", err)
+	}
+
+	return nil
+}
+
+func (instance ReservationPostgresRepository) ListAllReservations(tokenJwt string) ([]reservation.Reservation, error) {
 	var reservations []reservation.Reservation
 
 	conn, err := instance.getConnection()
@@ -104,6 +154,12 @@ func (instance ReservationPostgresRepository) ListAllReservations() ([]reservati
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return nil, err
+	}
 
 	reservationsDB, err := queries.ListAllReservations(ctx)
 
@@ -132,7 +188,7 @@ func (instance ReservationPostgresRepository) ListAllReservations() ([]reservati
 	return reservations, nil
 }
 
-func (instance ReservationPostgresRepository) GetReservationByID(id uuid.UUID) (*reservation.Reservation, error) {
+func (instance ReservationPostgresRepository) GetReservationByID(id uuid.UUID, tokenJwt string) (*reservation.Reservation, error) {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -144,6 +200,12 @@ func (instance ReservationPostgresRepository) GetReservationByID(id uuid.UUID) (
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserLogged(tokenJwt, id, *queries, ctx)
+
+	if err != nil {
+		return nil, err
+	}
 
 	reservationDB, err := queries.GetReservationByID(ctx, id)
 
@@ -166,7 +228,7 @@ func (instance ReservationPostgresRepository) GetReservationByID(id uuid.UUID) (
 	return reservationReceived, nil
 }
 
-func (instance ReservationPostgresRepository) GetReservationsByRoomID(roomID uuid.UUID) ([]reservation.Reservation, error) {
+func (instance ReservationPostgresRepository) GetReservationsByRoomID(roomID uuid.UUID, tokenJwt string) ([]reservation.Reservation, error) {
 	var reservations []reservation.Reservation
 
 	conn, err := instance.getConnection()
@@ -180,6 +242,12 @@ func (instance ReservationPostgresRepository) GetReservationsByRoomID(roomID uui
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return nil, err
+	}
 
 	reservationsDB, err := queries.ListReservationsByRoomID(ctx, roomID)
 
@@ -221,6 +289,10 @@ func (instance ReservationPostgresRepository) GetReservationsByUserID(userID uui
 
 	ctx := context.Background()
 
+	if err != nil {
+		return nil, err
+	}
+
 	reservationsDB, err := queries.ListReservationsByUserID(ctx, userID)
 
 	if err != nil {
@@ -246,7 +318,7 @@ func (instance ReservationPostgresRepository) GetReservationsByUserID(userID uui
 	return reservations, nil
 }
 
-func (instance ReservationPostgresRepository) DeleteReservationByID(id uuid.UUID) error {
+func (instance ReservationPostgresRepository) DeleteReservationByID(id uuid.UUID, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -258,6 +330,46 @@ func (instance ReservationPostgresRepository) DeleteReservationByID(id uuid.UUID
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	reservationDB, err := queries.GetReservationByID(ctx, id)
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter reserva: %v", err)
+	}
+
+	err = checkIfUserLogged(tokenJwt, reservationDB.IDUser, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = queries.DeleteReservation(ctx, id)
+
+	if err != nil {
+		return fmt.Errorf("falha ao deletar reserva: %v", err)
+	}
+
+	return nil
+}
+
+func (instance ReservationPostgresRepository) DeleteMyReservationByID(id uuid.UUID, tokenJwt string) error {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = queries.DeleteReservation(ctx, id)
 

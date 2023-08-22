@@ -15,7 +15,7 @@ type RoomServices struct {
 	roomRepository repository.RoomLoader
 }
 
-func (instance *RoomServices) CreateRoom(r room.Room) error {
+func (instance *RoomServices) CreateRoom(r room.Room, tokenJwt string) error {
 	newRoomUUID, err := uuid.NewUUID()
 
 	if err != nil {
@@ -30,7 +30,7 @@ func (instance *RoomServices) CreateRoom(r room.Room) error {
 		return err
 	}
 
-	return instance.roomRepository.CreateRoom(*formattedRoom)
+	return instance.roomRepository.CreateRoom(*formattedRoom, tokenJwt)
 }
 
 func (instance *RoomServices) ListAllRooms() ([]room.Room, error) {
@@ -45,12 +45,12 @@ func (instance *RoomServices) GetRoomByCod(cod string) (*room.Room, error) {
 	return instance.roomRepository.GetRoomByCod(cod)
 }
 
-func (instance *RoomServices) DeleteRoomByID(id uuid.UUID) error {
-	return instance.roomRepository.DeleteRoomByID(id)
+func (instance *RoomServices) DeleteRoomByID(id uuid.UUID, tokenJwt string) error {
+	return instance.roomRepository.DeleteRoomByID(id, tokenJwt)
 }
 
-func (instance *RoomServices) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string) error {
-	return instance.roomRepository.AddImageToRoomByRoomID(id, imageUrl)
+func (instance *RoomServices) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, tokenJwt string) error {
+	return instance.roomRepository.AddImageToRoomByRoomID(id, imageUrl, tokenJwt)
 }
 
 func (instance *RoomServices) GetRoomWithImagesByRoomID(id uuid.UUID) (*room.Room, error) {

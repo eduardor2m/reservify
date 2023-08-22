@@ -17,6 +17,7 @@ type ReservationHandler struct {
 
 func (instance ReservationHandler) CreateReservation(context echo.Context) error {
 	var reservationDTO request.ReservationDTO
+	token := context.Request().Header.Get("Authorization")
 
 	err := context.Bind(&reservationDTO)
 
@@ -30,7 +31,7 @@ func (instance ReservationHandler) CreateReservation(context echo.Context) error
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.CreateReservation(*reservationReceived)
+	err = instance.service.CreateReservation(*reservationReceived, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -40,7 +41,9 @@ func (instance ReservationHandler) CreateReservation(context echo.Context) error
 }
 
 func (instance ReservationHandler) ListAllReservations(context echo.Context) error {
-	reservations, err := instance.service.ListAllReservations()
+	token := context.Request().Header.Get("Authorization")
+
+	reservations, err := instance.service.ListAllReservations(token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -61,6 +64,7 @@ func (instance ReservationHandler) ListAllReservations(context echo.Context) err
 
 func (instance ReservationHandler) GetReservationByID(context echo.Context) error {
 	id := context.Param("id")
+	token := context.Request().Header.Get("Authorization")
 
 	reservationID, err := uuid.Parse(id)
 
@@ -68,7 +72,7 @@ func (instance ReservationHandler) GetReservationByID(context echo.Context) erro
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	reservationReceived, err := instance.service.GetReservationByID(reservationID)
+	reservationReceived, err := instance.service.GetReservationByID(reservationID, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -79,6 +83,7 @@ func (instance ReservationHandler) GetReservationByID(context echo.Context) erro
 
 func (instance ReservationHandler) GetReservationsByRoomID(context echo.Context) error {
 	id := context.Param("id_room")
+	token := context.Request().Header.Get("Authorization")
 
 	reservationID, err := uuid.Parse(id)
 
@@ -86,7 +91,7 @@ func (instance ReservationHandler) GetReservationsByRoomID(context echo.Context)
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	reservationsReceived, err := instance.service.GetReservationsByRoomID(reservationID)
+	reservationsReceived, err := instance.service.GetReservationsByRoomID(reservationID, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -136,6 +141,7 @@ func (instance ReservationHandler) GetReservationsByUserID(context echo.Context)
 
 func (instance ReservationHandler) DeleteReservationByID(context echo.Context) error {
 	id := context.Param("id")
+	token := context.Request().Header.Get("Authorization")
 
 	reservationID, err := uuid.Parse(id)
 
@@ -143,7 +149,7 @@ func (instance ReservationHandler) DeleteReservationByID(context echo.Context) e
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.DeleteReservationByID(reservationID)
+	err = instance.service.DeleteReservationByID(reservationID, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})

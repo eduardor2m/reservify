@@ -57,6 +57,43 @@ func checkIfUserIsAdmin(tokenJwt string, queries bridge.Queries, ctx context.Con
 	return nil
 }
 
+func checkIfUserLogged(tokenJwt string, userID uuid.UUID, queries bridge.Queries, ctx context.Context) error {
+	jwtSecretKey := os.Getenv("JWT_SECRET")
+
+	token, err := jwt.Parse(tokenJwt[7:], func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecretKey), nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter token: %v", err)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userIDToken := claims["user_id"].(string)
+
+		userIDFromToken, err := uuid.Parse(userIDToken)
+
+		if err != nil {
+			return fmt.Errorf("falha ao converter id do usuário: %v", err)
+		}
+
+		userDB, err := queries.FindUserByID(ctx, userIDFromToken)
+
+		if err != nil {
+			return fmt.Errorf("falha ao encontrar usuário: %v", err)
+		}
+
+		if userDB.ID != userID {
+			return fmt.Errorf("usuário não é o mesmo")
+		}
+
+	} else {
+		fmt.Println("Token inválido.")
+	}
+
+	return nil
+}
+
 func (instance UserPostgresRepository) CreateUser(u user.User) error {
 	conn, err := instance.getConnection()
 
@@ -183,7 +220,7 @@ func (instance UserPostgresRepository) ListAllUsers(tokenJwt string) ([]user.Use
 	return users, nil
 }
 
-func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, error) {
+func (instance UserPostgresRepository) GetUserByID(id uuid.UUID, tokenJwt string) (*user.User, error) {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -195,6 +232,12 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return nil, err
+	}
 
 	userDB, err := queries.FindUserByID(ctx, id)
 
@@ -222,7 +265,7 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 	return userReceived, nil
 }
 
-func (instance UserPostgresRepository) GetUsersByName(name string) ([]user.User, error) {
+func (instance UserPostgresRepository) GetUsersByName(name string, tokenJwt string) ([]user.User, error) {
 	var users []user.User
 
 	conn, err := instance.getConnection()
@@ -236,6 +279,12 @@ func (instance UserPostgresRepository) GetUsersByName(name string) ([]user.User,
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return users, err
+	}
 
 	usersDB, err := queries.ListUsersByName(ctx, name)
 
@@ -267,7 +316,7 @@ func (instance UserPostgresRepository) GetUsersByName(name string) ([]user.User,
 	return users, nil
 }
 
-func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user.User) error {
+func (instance UserPostgresRepository) UpdateUserByEmail(email string, tokenJwt string, user user.User) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -279,6 +328,12 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = queries.UpdateUserByEmail(ctx, bridge.UpdateUserByEmailParams{
 		Name:        user.Name(),
@@ -298,7 +353,7 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user
 	return nil
 }
 
-func (instance UserPostgresRepository) DeleteUserByEmail(email string) error {
+func (instance UserPostgresRepository) DeleteUserByEmail(email string, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -310,6 +365,12 @@ func (instance UserPostgresRepository) DeleteUserByEmail(email string) error {
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
 
 	err = queries.DeleteUserByEmail(ctx, email)
 
