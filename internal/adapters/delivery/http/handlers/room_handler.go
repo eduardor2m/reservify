@@ -102,7 +102,6 @@ func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 }
 
 func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
-
 	var imageDTO request.ImageDTO
 
 	err := context.Bind(&imageDTO)
@@ -110,7 +109,7 @@ func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.AddImageToRoomById(imageDTO.IdUser, imageDTO.ImageUrl)
+	err = instance.service.AddImageToRoomByRoomID(imageDTO.IdUser, imageDTO.ImageUrl)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
@@ -127,7 +126,7 @@ func (instance RoomHandler) GetRoomWithImages(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	room, err := instance.service.ListAllImagesByRoomID(idUUID)
+	room, err := instance.service.GetRoomWithImagesByRoomID(idUUID)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})

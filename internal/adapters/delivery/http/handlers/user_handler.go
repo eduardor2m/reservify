@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"reservify/internal/adapters/delivery/http/handlers/dto/request"
 	"reservify/internal/adapters/delivery/http/handlers/dto/response"
-	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 
@@ -129,145 +128,6 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.NewUser(*userReceived))
 }
 
-func (instance UserHandler) CreateReservation(context echo.Context) error {
-	var reservationDTO request.ReservationDTO
-
-	err := context.Bind(&reservationDTO)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	reservationReceived, err := reservation.NewBuilder().WithIdRoom(reservationDTO.IdRoom).WithIdUser(reservationDTO.IdUser).WithCheckIn(reservationDTO.CheckIn).WithCheckOut(reservationDTO.CheckOut).Build()
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	err = instance.service.CreateReservation(*reservationReceived)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room rented successfully"})
-}
-
-func (instance UserHandler) GetReservationByID(context echo.Context) error {
-	id := context.Param("id")
-
-	reservationID, err := uuid.Parse(id)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	reservationReceived, err := instance.service.GetReservationByID(reservationID)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	return context.JSON(http.StatusOK, response.NewReservation(*reservationReceived))
-}
-
-func (instance UserHandler) GetReservationByIDRoom(context echo.Context) error {
-	id := context.Param("id_room")
-
-	reservationID, err := uuid.Parse(id)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	reservationsReceived, err := instance.service.GetReservationByIDRoom(reservationID)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	var reservationsResponse []response.Reservation
-
-	for _, reservationDB := range reservationsReceived {
-		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
-	}
-
-	if len(reservationsResponse) == 0 {
-		return context.JSON(http.StatusOK, []response.Reservation{})
-	}
-
-	return context.JSON(http.StatusOK, reservationsResponse)
-}
-
-func (instance UserHandler) GetReservationByIDUser(context echo.Context) error {
-	id := context.Param("id_user")
-
-	reservationID, err := uuid.Parse(id)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	reservationsReceived, err := instance.service.GetReservationByIDUser(reservationID)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	var reservationsResponse []response.Reservation
-
-	for _, reservationDB := range reservationsReceived {
-		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
-	}
-
-	if len(reservationsResponse) == 0 {
-		return context.JSON(http.StatusOK, []response.Reservation{})
-	}
-
-	return context.JSON(http.StatusOK, reservationsResponse)
-
-}
-
-func (instance UserHandler) DeleteReservationByID(context echo.Context) error {
-	id := context.Param("id")
-
-	reservationID, err := uuid.Parse(id)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	err = instance.service.DeleteReservationByID(reservationID)
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Reservation deleted successfully"})
-
-}
-
-func (instance UserHandler) ListAllReservations(context echo.Context) error {
-	reservations, err := instance.service.ListAllReservations()
-
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-	}
-
-	var reservationsResponse []response.Reservation
-
-	for _, reservationDB := range reservations {
-		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
-	}
-
-	if len(reservationsResponse) == 0 {
-		return context.JSON(http.StatusOK, []response.Reservation{})
-	}
-
-	return context.JSON(http.StatusOK, reservationsResponse)
-
-}
-
 // GetUserByName
 // @ID GetUserByName
 // @Summary Busca um usuário pelo nome.
@@ -280,10 +140,10 @@ func (instance UserHandler) ListAllReservations(context echo.Context) error {
 // @Failure 401 {object} response.ErrorMessage
 // @Router /user/{name} [get]
 
-func (instance UserHandler) GetUserByName(context echo.Context) error {
+func (instance UserHandler) GetUsersByName(context echo.Context) error {
 	name := context.Param("name")
 
-	users, err := instance.service.GetUserByName(name)
+	users, err := instance.service.GetUsersByName(name)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})

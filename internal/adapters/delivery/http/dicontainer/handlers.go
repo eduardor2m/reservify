@@ -9,3 +9,7 @@ func GetUserHandler() *handlers.UserHandler {
 func GetRoomHandler() *handlers.RoomHandler {
 	return handlers.NewRoomHandler(GetRoomServices())
 }
+
+func GetReservationHandler() *handlers.ReservationHandler {
+	return handlers.NewReservationHandler(GetReservationServices())
+}

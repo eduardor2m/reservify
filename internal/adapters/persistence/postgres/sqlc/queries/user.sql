@@ -6,26 +6,26 @@ INSERT INTO "user" ("id", "name", "cpf", "email", "password", "phone", "date_of_
 
 SELECT * FROM "user" WHERE "email" = $1 LIMIT 1;
 
--- name: FindByEmail :one
+-- name: FindUserByEmail :one
 
 SELECT * FROM "user" WHERE "email" = $1 LIMIT 1;
 
--- name: FindByID :one
+-- name: FindUserByID :one
 
 SELECT * FROM "user" WHERE "id" = $1 LIMIT 1;
 
--- name: ListByName :many
+-- name: ListUsersByName :many
 
 SELECT * FROM "user" WHERE "name" LIKE $1 ORDER BY "id";
 
--- name: ListAll :many
+-- name: ListAllUsers :many
 
 SELECT * FROM "user" ORDER BY "id";
 
--- name: UpdateByEmail :exec
+-- name: UpdateUserByEmail :exec
 
 UPDATE "user" SET "name" = $1, "cpf" = $2, "email" = $3, "password" = $4, "phone" = $5, "date_of_birth" = $6, "admin" = $7, "created_at" = $8, "updated_at" = $9 WHERE "email" = $10;
 
--- name: DeleteByEmail :exec
+-- name: DeleteUserByEmail :exec
 
 DELETE FROM "user" WHERE "email" = $1;

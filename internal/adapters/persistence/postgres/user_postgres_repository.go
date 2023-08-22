@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"os"
 	"reservify/internal/adapters/persistence/postgres/bridge"
-	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
-	"reservify/internal/utils/converters"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -20,43 +18,6 @@ var _ repository.UserLoader = &UserPostgresRepository{}
 
 type UserPostgresRepository struct {
 	connectorManager
-}
-
-func checkIfRoomIsAvailable(ctx context.Context, queries bridge.Queries, reservation reservation.Reservation) error {
-	reservationsDB, err := queries.GetReservationByIDRoom(ctx, reservation.IDRoom())
-
-	if err != nil {
-		return fmt.Errorf("falha ao obter reservas do banco de dados: %v", err)
-	}
-
-	newCheckIn, err := converters.ConverterFromStringToTime(reservation.CheckIn())
-	if err != nil {
-		return fmt.Errorf("falha ao converter data de check-in: %v", err)
-	}
-
-	newCheckOut, err := converters.ConverterFromStringToTime(reservation.CheckOut())
-	if err != nil {
-		return fmt.Errorf("falha ao converter data de check-out: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		dbCheckIn, err := converters.ConverterFromStringToTime(reservationDB.CheckIn)
-		if err != nil {
-			return fmt.Errorf("falha ao converter data de check-in do banco de dados: %v", err)
-		}
-
-		dbCheckOut, err := converters.ConverterFromStringToTime(reservationDB.CheckOut)
-		if err != nil {
-			return fmt.Errorf("falha ao converter data de check-out do banco de dados: %v", err)
-		}
-
-		if (newCheckIn.Equal(dbCheckIn) || newCheckIn.Equal(dbCheckOut)) ||
-			(newCheckOut.Equal(dbCheckIn) || newCheckOut.Equal(dbCheckOut)) {
-			return fmt.Errorf("falha ao criar reserva: quarto indisponível")
-		}
-	}
-
-	return nil
 }
 
 func (instance UserPostgresRepository) CreateUser(u user.User) error {
@@ -134,220 +95,6 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 	return &tokenString, nil
 }
 
-func (instance UserPostgresRepository) CreateReservation(
-	reservation reservation.Reservation,
-) error {
-	conn, err := instance.getConnection()
-
-	if err != nil {
-		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	defer instance.closeConnection(conn)
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	err = checkIfRoomIsAvailable(ctx, *queries, reservation)
-
-	if err != nil {
-		return fmt.Errorf(err.Error())
-	}
-
-	err = queries.CreateReservation(ctx, bridge.CreateReservationParams{
-		ID:       reservation.ID(),
-		IDUser:   reservation.IDUser(),
-		IDRoom:   reservation.IDRoom(),
-		CheckIn:  reservation.CheckIn(),
-		CheckOut: reservation.CheckOut(),
-	})
-
-	if err != nil {
-		return fmt.Errorf("falha ao criar reserva: %v", err)
-	}
-
-	return nil
-}
-
-func (instance UserPostgresRepository) GetReservationByID(id uuid.UUID) (*reservation.Reservation, error) {
-	conn, err := instance.getConnection()
-
-	if err != nil {
-		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	defer instance.closeConnection(conn)
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationDB, err := queries.GetReservationByID(ctx, id)
-
-	if err != nil {
-		return nil, fmt.Errorf("falha ao obter reserva: %v", err)
-	}
-
-	reservationReceived, err := reservation.NewBuilder().
-		WithID(reservationDB.ID).
-		WithIdUser(reservationDB.IDUser).
-		WithIdRoom(reservationDB.IDRoom).
-		WithCheckIn(reservationDB.CheckIn).
-		WithCheckOut(reservationDB.CheckOut).
-		Build()
-
-	if err != nil {
-		return nil, fmt.Errorf("falha ao construir reserva: %v", err)
-	}
-
-	return reservationReceived, nil
-}
-
-func (instance UserPostgresRepository) GetReservationByIDRoom(id uuid.UUID) ([]reservation.Reservation, error) {
-	var reservations []reservation.Reservation
-
-	conn, err := instance.getConnection()
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	defer instance.closeConnection(conn)
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationsDB, err := queries.GetReservationByIDRoom(ctx, id)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter reservas: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		reservationReceived, err := reservation.NewBuilder().
-			WithID(reservationDB.ID).
-			WithIdUser(reservationDB.IDUser).
-			WithIdRoom(reservationDB.IDRoom).
-			WithCheckIn(reservationDB.CheckIn).
-			WithCheckOut(reservationDB.CheckOut).
-			Build()
-
-		if err != nil {
-			return reservations, fmt.Errorf("falha ao construir reserva: %v", err)
-		}
-
-		reservations = append(reservations, *reservationReceived)
-	}
-
-	return reservations, nil
-}
-
-func (instance UserPostgresRepository) GetReservationByIDUser(id uuid.UUID) ([]reservation.Reservation, error) {
-	var reservations []reservation.Reservation
-
-	conn, err := instance.getConnection()
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	defer instance.closeConnection(conn)
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationsDB, err := queries.GetReservationByIDUser(ctx, id)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter reservas: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		reservationReceived, err := reservation.NewBuilder().
-			WithID(reservationDB.ID).
-			WithIdUser(reservationDB.IDUser).
-			WithIdRoom(reservationDB.IDRoom).
-			WithCheckIn(reservationDB.CheckIn).
-			WithCheckOut(reservationDB.CheckOut).
-			Build()
-
-		if err != nil {
-			return reservations, fmt.Errorf("falha ao construir reserva: %v", err)
-		}
-
-		reservations = append(reservations, *reservationReceived)
-	}
-
-	return reservations, nil
-}
-
-func (instance UserPostgresRepository) DeleteReservationByID(id uuid.UUID) error {
-	conn, err := instance.getConnection()
-
-	if err != nil {
-		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	defer instance.closeConnection(conn)
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	err = queries.DeleteReservation(ctx, id)
-
-	if err != nil {
-		return fmt.Errorf("falha ao deletar reserva: %v", err)
-	}
-
-	return nil
-}
-
-func (instance UserPostgresRepository) ListAllReservations() ([]reservation.Reservation, error) {
-	var reservations []reservation.Reservation
-
-	conn, err := instance.getConnection()
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	defer instance.closeConnection(conn)
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationsDB, err := queries.ListAllReservations(ctx)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao listar reservas: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		reservationReceived, err := reservation.NewBuilder().
-			WithID(reservationDB.ID).
-			WithIdUser(reservationDB.IDUser).
-			WithIdRoom(reservationDB.IDRoom).
-			WithCheckIn(reservationDB.CheckIn).
-			WithCheckOut(reservationDB.CheckOut).
-			WithCreatedAt(reservationDB.CreatedAt).
-			WithUpdatedAt(reservationDB.UpdatedAt).
-			Build()
-
-		if err != nil {
-			return reservations, fmt.Errorf("falha ao construir reserva: %v", err)
-		}
-
-		reservations = append(reservations, *reservationReceived)
-	}
-
-	return reservations, nil
-}
-
 func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 	var users []user.User
 
@@ -363,7 +110,7 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 
 	ctx := context.Background()
 
-	usersDB, err := queries.ListAll(ctx)
+	usersDB, err := queries.ListAllUsers(ctx)
 
 	if err != nil {
 		return users, fmt.Errorf("falha ao listar usuários: %v", err)
@@ -406,7 +153,7 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 
 	ctx := context.Background()
 
-	userDB, err := queries.FindByID(ctx, id)
+	userDB, err := queries.FindUserByID(ctx, id)
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
@@ -432,7 +179,7 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 	return userReceived, nil
 }
 
-func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, error) {
+func (instance UserPostgresRepository) GetUsersByName(name string) ([]user.User, error) {
 	var users []user.User
 
 	conn, err := instance.getConnection()
@@ -447,7 +194,7 @@ func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, 
 
 	ctx := context.Background()
 
-	usersDB, err := queries.ListByName(ctx, name)
+	usersDB, err := queries.ListUsersByName(ctx, name)
 
 	if err != nil {
 		return users, fmt.Errorf("falha ao listar usuários: %v", err)
@@ -490,7 +237,7 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user
 
 	ctx := context.Background()
 
-	err = queries.UpdateByEmail(ctx, bridge.UpdateByEmailParams{
+	err = queries.UpdateUserByEmail(ctx, bridge.UpdateUserByEmailParams{
 		Name:        user.Name(),
 		Cpf:         user.CPF(),
 		Email:       user.Email(),
@@ -521,7 +268,7 @@ func (instance UserPostgresRepository) DeleteUserByEmail(email string) error {
 
 	ctx := context.Background()
 
-	err = queries.DeleteByEmail(ctx, email)
+	err = queries.DeleteUserByEmail(ctx, email)
 
 	if err != nil {
 		return fmt.Errorf("falha ao deletar usuário: %v", err)

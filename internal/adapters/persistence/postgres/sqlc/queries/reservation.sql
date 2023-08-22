@@ -10,11 +10,11 @@ SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "r
 
 SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id = $1 LIMIT 1;
 
--- name: GetReservationByIDRoom :many
+-- name: ListReservationsByRoomID :many
 
 SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id_room = $1 ORDER BY created_at DESC;
 
--- name: GetReservationByIDUser :many
+-- name: ListReservationsByUserID :many
 
 SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id_user = $1 ORDER BY created_at DESC;
 

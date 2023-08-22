@@ -179,7 +179,7 @@ func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID) error {
 	return nil
 }
 
-func (instance RoomPostgresRepository) AddImageToRoomById(id uuid.UUID, image string) error {
+func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -192,10 +192,10 @@ func (instance RoomPostgresRepository) AddImageToRoomById(id uuid.UUID, image st
 
 	ctx := context.Background()
 
-	err = queries.AddImageToRoomByID(ctx,
-		bridge.AddImageToRoomByIDParams{
+	err = queries.AddImageToRoomByRoomID(ctx,
+		bridge.AddImageToRoomByRoomIDParams{
 			IDRoom:   id,
-			ImageUrl: image,
+			ImageUrl: imageUrl,
 		},
 	)
 
@@ -206,7 +206,7 @@ func (instance RoomPostgresRepository) AddImageToRoomById(id uuid.UUID, image st
 	return nil
 }
 
-func (instance RoomPostgresRepository) ListAllImagesByRoomID(id uuid.UUID) (*room.Room, error) {
+func (instance RoomPostgresRepository) GetRoomWithImagesByRoomID(id uuid.UUID) (*room.Room, error) {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -219,7 +219,7 @@ func (instance RoomPostgresRepository) ListAllImagesByRoomID(id uuid.UUID) (*roo
 
 	ctx := context.Background()
 
-	imagesDB, err := queries.ListAllImagesByRoomID(ctx, id)
+	imagesDB, err := queries.ListImagesByRoomID(ctx, id)
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao obter imagens do quarto: %v", err)

@@ -46,23 +46,23 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
-const deleteByEmail = `-- name: DeleteByEmail :exec
+const deleteUserByEmail = `-- name: DeleteUserByEmail :exec
 
 DELETE FROM "user" WHERE "email" = $1
 `
 
-func (q *Queries) DeleteByEmail(ctx context.Context, email string) error {
-	_, err := q.db.ExecContext(ctx, deleteByEmail, email)
+func (q *Queries) DeleteUserByEmail(ctx context.Context, email string) error {
+	_, err := q.db.ExecContext(ctx, deleteUserByEmail, email)
 	return err
 }
 
-const findByEmail = `-- name: FindByEmail :one
+const findUserByEmail = `-- name: FindUserByEmail :one
 
 SELECT id, name, cpf, email, phone, date_of_birth, password, admin, created_at, updated_at FROM "user" WHERE "email" = $1 LIMIT 1
 `
 
-func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, findByEmail, email)
+func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -79,13 +79,13 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 	return i, err
 }
 
-const findByID = `-- name: FindByID :one
+const findUserByID = `-- name: FindUserByID :one
 
 SELECT id, name, cpf, email, phone, date_of_birth, password, admin, created_at, updated_at FROM "user" WHERE "id" = $1 LIMIT 1
 `
 
-func (q *Queries) FindByID(ctx context.Context, id uuid.UUID) (User, error) {
-	row := q.db.QueryRowContext(ctx, findByID, id)
+func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -102,13 +102,13 @@ func (q *Queries) FindByID(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
-const listAll = `-- name: ListAll :many
+const listAllUsers = `-- name: ListAllUsers :many
 
 SELECT id, name, cpf, email, phone, date_of_birth, password, admin, created_at, updated_at FROM "user" ORDER BY "id"
 `
 
-func (q *Queries) ListAll(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listAll)
+func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listAllUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -141,13 +141,13 @@ func (q *Queries) ListAll(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-const listByName = `-- name: ListByName :many
+const listUsersByName = `-- name: ListUsersByName :many
 
 SELECT id, name, cpf, email, phone, date_of_birth, password, admin, created_at, updated_at FROM "user" WHERE "name" LIKE $1 ORDER BY "id"
 `
 
-func (q *Queries) ListByName(ctx context.Context, name string) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listByName, name)
+func (q *Queries) ListUsersByName(ctx context.Context, name string) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUsersByName, name)
 	if err != nil {
 		return nil, err
 	}
@@ -203,12 +203,12 @@ func (q *Queries) Login(ctx context.Context, email string) (User, error) {
 	return i, err
 }
 
-const updateByEmail = `-- name: UpdateByEmail :exec
+const updateUserByEmail = `-- name: UpdateUserByEmail :exec
 
 UPDATE "user" SET "name" = $1, "cpf" = $2, "email" = $3, "password" = $4, "phone" = $5, "date_of_birth" = $6, "admin" = $7, "created_at" = $8, "updated_at" = $9 WHERE "email" = $10
 `
 
-type UpdateByEmailParams struct {
+type UpdateUserByEmailParams struct {
 	Name        string
 	Cpf         string
 	Email       string
@@ -221,8 +221,8 @@ type UpdateByEmailParams struct {
 	Email_2     string
 }
 
-func (q *Queries) UpdateByEmail(ctx context.Context, arg UpdateByEmailParams) error {
-	_, err := q.db.ExecContext(ctx, updateByEmail,
+func (q *Queries) UpdateUserByEmail(ctx context.Context, arg UpdateUserByEmailParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserByEmail,
 		arg.Name,
 		arg.Cpf,
 		arg.Email,

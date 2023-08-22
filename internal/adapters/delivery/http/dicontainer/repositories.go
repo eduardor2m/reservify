@@ -13,6 +13,10 @@ func GetRoomRepository() repository.RoomLoader {
 	return postgres.NewRoomPostgresRepository(GetPsqlConnectionManager())
 }
 
+func GetReservationRepository() repository.ReservationLoader {
+	return postgres.NewReservationPostgresRepository(GetPsqlConnectionManager())
+}
+
 func GetPsqlConnectionManager() *postgres.DatabaseConnectorManager {
 	return &postgres.DatabaseConnectorManager{}
 }

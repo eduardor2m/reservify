@@ -1,11 +1,9 @@
 package services
 
 import (
-	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
-	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -45,46 +43,6 @@ func (instance *UserServices) LoginUser(email string, password string) (*string,
 	return instance.userRepository.LoginUser(email, password)
 }
 
-func (instance *UserServices) CreateReservation(
-	r reservation.Reservation,
-) error {
-	reservationUUID, err := uuid.NewUUID()
-
-	if err != nil {
-		return err
-	}
-
-	reservationTime := time.Now()
-
-	reservationFormatted, err := reservation.NewBuilder().WithID(reservationUUID).WithIdRoom(r.IDRoom()).WithIdUser(r.IDUser()).WithCheckIn(r.CheckIn()).WithCheckOut(r.CheckOut()).WithCreatedAt(reservationTime).WithUpdatedAt(reservationTime).Build()
-
-	if err != nil {
-		return err
-	}
-	
-	return instance.userRepository.CreateReservation(*reservationFormatted)
-}
-
-func (instance *UserServices) GetReservationByID(id uuid.UUID) (*reservation.Reservation, error) {
-	return instance.userRepository.GetReservationByID(id)
-}
-
-func (instance *UserServices) GetReservationByIDRoom(idRoom uuid.UUID) ([]reservation.Reservation, error) {
-	return instance.userRepository.GetReservationByIDRoom(idRoom)
-}
-
-func (instance *UserServices) GetReservationByIDUser(idUser uuid.UUID) ([]reservation.Reservation, error) {
-	return instance.userRepository.GetReservationByIDUser(idUser)
-}
-
-func (instance *UserServices) DeleteReservationByID(id uuid.UUID) error {
-	return instance.userRepository.DeleteReservationByID(id)
-}
-
-func (instance *UserServices) ListAllReservations() ([]reservation.Reservation, error) {
-	return instance.userRepository.ListAllReservations()
-}
-
 func (instance *UserServices) ListAllUsers() ([]user.User, error) {
 	return instance.userRepository.ListAllUsers()
 }
@@ -93,8 +51,8 @@ func (instance *UserServices) GetUserByID(id uuid.UUID) (*user.User, error) {
 	return instance.userRepository.GetUserByID(id)
 }
 
-func (instance *UserServices) GetUserByName(name string) ([]user.User, error) {
-	return instance.userRepository.GetUserByName(name)
+func (instance *UserServices) GetUsersByName(name string) ([]user.User, error) {
+	return instance.userRepository.GetUsersByName(name)
 }
 
 func (instance *UserServices) UpdateUserByEmail(email string, user user.User) error {
