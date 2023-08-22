@@ -4,6 +4,7 @@ import (
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -30,7 +31,9 @@ func (instance *UserServices) CreateUser(u user.User) error {
 
 	encryptedPasswordString := string(encryptedPassword)
 
-	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithDateOfBirth(u.DateOfBirth()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithAdmin(u.Admin()).Build()
+	date := time.Now()
+
+	formattedUser, err := user.NewBuilder().WithID(newUserUUID).WithName(u.Name()).WithCPF(u.CPF()).WithDateOfBirth(u.DateOfBirth()).WithPhone(u.Phone()).WithEmail(u.Email()).WithPassword(encryptedPasswordString).WithAdmin(u.Admin()).WithCreatedAt(date).WithUpdatedAt(date).Build()
 
 	if err != nil {
 		return err
@@ -43,8 +46,8 @@ func (instance *UserServices) LoginUser(email string, password string) (*string,
 	return instance.userRepository.LoginUser(email, password)
 }
 
-func (instance *UserServices) ListAllUsers() ([]user.User, error) {
-	return instance.userRepository.ListAllUsers()
+func (instance *UserServices) ListAllUsers(tokenJwt string) ([]user.User, error) {
+	return instance.userRepository.ListAllUsers(tokenJwt)
 }
 
 func (instance *UserServices) GetUserByID(id uuid.UUID) (*user.User, error) {

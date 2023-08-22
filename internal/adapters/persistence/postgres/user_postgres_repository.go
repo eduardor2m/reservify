@@ -20,6 +20,43 @@ type UserPostgresRepository struct {
 	connectorManager
 }
 
+func checkIfUserIsAdmin(tokenJwt string, queries bridge.Queries, ctx context.Context) error {
+	jwtSecretKey := os.Getenv("JWT_SECRET")
+
+	token, err := jwt.Parse(tokenJwt[7:], func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecretKey), nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter token: %v", err)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID := claims["user_id"].(string)
+
+		userIDFromToken, err := uuid.Parse(userID)
+
+		if err != nil {
+			return fmt.Errorf("falha ao converter id do usuário: %v", err)
+		}
+
+		userDB, err := queries.FindUserByID(ctx, userIDFromToken)
+
+		if err != nil {
+			return fmt.Errorf("falha ao encontrar usuário: %v", err)
+		}
+
+		if !userDB.Admin {
+			return fmt.Errorf("usuário não é administrador")
+		}
+
+	} else {
+		fmt.Println("Token inválido.")
+	}
+
+	return nil
+}
+
 func (instance UserPostgresRepository) CreateUser(u user.User) error {
 	conn, err := instance.getConnection()
 
@@ -41,9 +78,9 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 		Password:    u.Password(),
 		Phone:       u.Phone(),
 		DateOfBirth: u.DateOfBirth(),
-		Admin:       u.Admin(),
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		Admin:       false,
+		CreatedAt:   u.CreatedAt(),
+		UpdatedAt:   u.UpdatedAt(),
 	})
 
 	if err != nil {
@@ -83,7 +120,7 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
-	claims["user_id"] = email
+	claims["user_id"] = userDB.ID
 	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
 
 	tokenString, err := token.SignedString([]byte(jwtSecretKey))
@@ -95,7 +132,7 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 	return &tokenString, nil
 }
 
-func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
+func (instance UserPostgresRepository) ListAllUsers(tokenJwt string) ([]user.User, error) {
 	var users []user.User
 
 	conn, err := instance.getConnection()
@@ -109,6 +146,12 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return users, err
+	}
 
 	usersDB, err := queries.ListAllUsers(ctx)
 

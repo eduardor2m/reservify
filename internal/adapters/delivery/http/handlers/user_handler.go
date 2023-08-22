@@ -89,7 +89,9 @@ func (instance UserHandler) LoginUser(context echo.Context) error {
 // @Router /user [get]
 
 func (instance UserHandler) ListAllUsers(context echo.Context) error {
-	users, err := instance.service.ListAllUsers()
+	token := context.Request().Header.Get("Authorization")
+
+	users, err := instance.service.ListAllUsers(token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
