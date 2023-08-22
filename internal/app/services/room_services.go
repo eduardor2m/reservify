@@ -4,6 +4,7 @@ import (
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -21,7 +22,13 @@ func (instance *RoomServices) CreateRoom(r room.Room) error {
 		return err
 	}
 
-	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).Build()
+	createAt := time.Now()
+
+	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).WithCreatedAt(createAt).WithUpdatedAt(createAt).Build()
+
+	if err != nil {
+		return err
+	}
 
 	return instance.roomRepository.CreateRoom(*formattedRoom)
 }

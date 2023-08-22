@@ -102,17 +102,23 @@ func (instance UserHandler) ListAllUsers(context echo.Context) error {
 		usersResponse = append(usersResponse, *response.NewUser(userDB))
 	}
 
+	if len(usersResponse) == 0 {
+		return context.JSON(http.StatusOK, []response.User{})
+	}
+
 	return context.JSON(http.StatusOK, usersResponse)
 }
 
 // GetUserByID
 
 func (instance UserHandler) GetUserByID(context echo.Context) error {
-	var id string
-
-	id = context.Param("id")
+	id := context.Param("id")
 
 	userID, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
 
 	userReceived, err := instance.service.GetUserByID(userID)
 
@@ -148,11 +154,13 @@ func (instance UserHandler) CreateReservation(context echo.Context) error {
 }
 
 func (instance UserHandler) GetReservationByID(context echo.Context) error {
-	var id string
-
-	id = context.Param("id")
+	id := context.Param("id")
 
 	reservationID, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
 
 	reservationReceived, err := instance.service.GetReservationByID(reservationID)
 
@@ -164,11 +172,13 @@ func (instance UserHandler) GetReservationByID(context echo.Context) error {
 }
 
 func (instance UserHandler) GetReservationByIDRoom(context echo.Context) error {
-	var id string
-
-	id = context.Param("id_room")
+	id := context.Param("id_room")
 
 	reservationID, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
 
 	reservationsReceived, err := instance.service.GetReservationByIDRoom(reservationID)
 
@@ -182,15 +192,21 @@ func (instance UserHandler) GetReservationByIDRoom(context echo.Context) error {
 		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
 	}
 
+	if len(reservationsResponse) == 0 {
+		return context.JSON(http.StatusOK, []response.Reservation{})
+	}
+
 	return context.JSON(http.StatusOK, reservationsResponse)
 }
 
 func (instance UserHandler) GetReservationByIDUser(context echo.Context) error {
-	var id string
-
-	id = context.Param("id_user")
+	id := context.Param("id_user")
 
 	reservationID, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
 
 	reservationsReceived, err := instance.service.GetReservationByIDUser(reservationID)
 
@@ -204,17 +220,22 @@ func (instance UserHandler) GetReservationByIDUser(context echo.Context) error {
 		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
 	}
 
+	if len(reservationsResponse) == 0 {
+		return context.JSON(http.StatusOK, []response.Reservation{})
+	}
+
 	return context.JSON(http.StatusOK, reservationsResponse)
 
 }
 
 func (instance UserHandler) DeleteReservationByID(context echo.Context) error {
-
-	var id string
-
-	id = context.Param("id")
+	id := context.Param("id")
 
 	reservationID, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
 
 	err = instance.service.DeleteReservationByID(reservationID)
 
@@ -239,6 +260,10 @@ func (instance UserHandler) ListAllReservations(context echo.Context) error {
 		reservationsResponse = append(reservationsResponse, *response.NewReservation(reservationDB))
 	}
 
+	if len(reservationsResponse) == 0 {
+		return context.JSON(http.StatusOK, []response.Reservation{})
+	}
+
 	return context.JSON(http.StatusOK, reservationsResponse)
 
 }
@@ -256,9 +281,7 @@ func (instance UserHandler) ListAllReservations(context echo.Context) error {
 // @Router /user/{name} [get]
 
 func (instance UserHandler) GetUserByName(context echo.Context) error {
-	var name string
-
-	name = context.Param("name")
+	name := context.Param("name")
 
 	users, err := instance.service.GetUserByName(name)
 
@@ -270,6 +293,10 @@ func (instance UserHandler) GetUserByName(context echo.Context) error {
 
 	for _, userDB := range users {
 		usersResponse = append(usersResponse, *response.NewUser(userDB))
+	}
+
+	if len(usersResponse) == 0 {
+		return context.JSON(http.StatusOK, []response.User{})
 	}
 
 	return context.JSON(http.StatusOK, usersResponse)
@@ -305,9 +332,7 @@ func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
 // @Router /user/{email} [delete]
 
 func (instance UserHandler) DeleteUserByEmail(context echo.Context) error {
-	var email string
-
-	email = context.Param("email")
+	email := context.Param("email")
 
 	err := instance.service.DeleteUserByEmail(email)
 
