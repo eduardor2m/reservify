@@ -318,7 +318,7 @@ func (instance ReservationPostgresRepository) GetReservationsByUserID(userID uui
 	return reservations, nil
 }
 
-func (instance ReservationPostgresRepository) DeleteReservationByID(id uuid.UUID, tokenJwt string) error {
+func (instance ReservationPostgresRepository) DeleteMyReservationByID(id uuid.UUID, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -352,7 +352,7 @@ func (instance ReservationPostgresRepository) DeleteReservationByID(id uuid.UUID
 	return nil
 }
 
-func (instance ReservationPostgresRepository) DeleteMyReservationByID(id uuid.UUID, tokenJwt string) error {
+func (instance ReservationPostgresRepository) DeleteReservationByID(id uuid.UUID, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {

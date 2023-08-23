@@ -88,7 +88,7 @@ func checkIfUserLogged(tokenJwt string, userID uuid.UUID, queries bridge.Queries
 		}
 
 	} else {
-		fmt.Println("Token inválido.")
+		return fmt.Errorf("token inválido")
 	}
 
 	return nil
@@ -355,7 +355,7 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, tokenJwt 
 
 func (instance UserPostgresRepository) UpdateAdminByUserID(userID uuid.UUID, tokenJwt string) error {
 	conn, err := instance.getConnection()
-	
+
 	if err != nil {
 		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
@@ -374,7 +374,7 @@ func (instance UserPostgresRepository) UpdateAdminByUserID(userID uuid.UUID, tok
 
 	err = queries.UpdateAdminByUserID(ctx, bridge.UpdateAdminByUserIDParams{
 		Admin: true,
-		ID: userID,
+		ID:    userID,
 	})
 
 	if err != nil {
@@ -383,7 +383,6 @@ func (instance UserPostgresRepository) UpdateAdminByUserID(userID uuid.UUID, tok
 
 	return nil
 }
-
 
 func (instance UserPostgresRepository) DeleteUserByEmail(email string, tokenJwt string) error {
 	conn, err := instance.getConnection()

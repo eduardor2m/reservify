@@ -54,7 +54,7 @@ func (instance *ReservationServices) CreateMyReservation(
 		return err
 	}
 
-	return instance.reservationRepository.CreateReservation(*reservationFormatted, tokenJwt)
+	return instance.reservationRepository.CreateMyReservation(*reservationFormatted, tokenJwt)
 }
 
 func (instance *ReservationServices) ListAllReservations(tokenJwt string) ([]reservation.Reservation, error) {

@@ -10,10 +10,12 @@ func loadReservationRoutes(group *echo.Group) {
 	reservationGroup := group.Group("/reservation")
 	reservationHandlers := dicontainer.GetReservationHandler()
 
-	reservationGroup.POST("", reservationHandlers.CreateReservation)
+	reservationGroup.POST("/admin", reservationHandlers.CreateReservation)
+	reservationGroup.POST("", reservationHandlers.CreateMyReservation)
 	reservationGroup.GET("", reservationHandlers.ListAllReservations)
 	reservationGroup.GET("/:id", reservationHandlers.GetReservationByID)
 	reservationGroup.GET("/room/:id_room", reservationHandlers.GetReservationsByRoomID)
 	reservationGroup.GET("/user/:id_user", reservationHandlers.GetReservationsByUserID)
-	reservationGroup.DELETE("/:id", reservationHandlers.DeleteReservationByID)
+	reservationGroup.DELETE("/admin/:id", reservationHandlers.DeleteReservationByID)
+	reservationGroup.DELETE("/:id", reservationHandlers.DeleteMyReservationByID)
 }

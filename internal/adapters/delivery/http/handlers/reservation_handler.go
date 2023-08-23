@@ -40,6 +40,31 @@ func (instance ReservationHandler) CreateReservation(context echo.Context) error
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room rented successfully"})
 }
 
+func (instance ReservationHandler) CreateMyReservation(context echo.Context) error {
+	var reservationDTO request.ReservationDTO
+	token := context.Request().Header.Get("Authorization")
+
+	err := context.Bind(&reservationDTO)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	reservationReceived, err := reservation.NewBuilder().WithIdRoom(reservationDTO.IdRoom).WithIdUser(reservationDTO.IdUser).WithCheckIn(reservationDTO.CheckIn).WithCheckOut(reservationDTO.CheckOut).Build()
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	err = instance.service.CreateMyReservation(*reservationReceived, token)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room rented successfully"})
+}
+
 func (instance ReservationHandler) ListAllReservations(context echo.Context) error {
 	token := context.Request().Header.Get("Authorization")
 
@@ -150,6 +175,26 @@ func (instance ReservationHandler) DeleteReservationByID(context echo.Context) e
 	}
 
 	err = instance.service.DeleteReservationByID(reservationID, token)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Reservation deleted successfully"})
+
+}
+
+func (instance ReservationHandler) DeleteMyReservationByID(context echo.Context) error {
+	id := context.Param("id")
+	token := context.Request().Header.Get("Authorization")
+
+	reservationID, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	err = instance.service.DeleteMyReservationByID(reservationID, token)
 
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
