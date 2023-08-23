@@ -1,7 +1,7 @@
--- name: AddImageToRoomByID :exec
+-- name: AddImageToRoomByRoomID :exec
 
 INSERT INTO image (id_room, image_url) VALUES ($1,$2);
 
--- name: ListAllImagesByRoomID :many
+-- name: ListImagesByRoomID :many
 
 SELECT id_room, image_url FROM image WHERE id_room = $1;

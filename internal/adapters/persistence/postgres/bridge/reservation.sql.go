@@ -70,78 +70,6 @@ func (q *Queries) GetReservationByID(ctx context.Context, id uuid.UUID) (Reserva
 	return i, err
 }
 
-const getReservationByIDRoom = `-- name: GetReservationByIDRoom :many
-
-SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id_room = $1 ORDER BY created_at DESC
-`
-
-func (q *Queries) GetReservationByIDRoom(ctx context.Context, idRoom uuid.UUID) ([]Reservation, error) {
-	rows, err := q.db.QueryContext(ctx, getReservationByIDRoom, idRoom)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Reservation
-	for rows.Next() {
-		var i Reservation
-		if err := rows.Scan(
-			&i.ID,
-			&i.IDUser,
-			&i.IDRoom,
-			&i.CheckIn,
-			&i.CheckOut,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getReservationByIDUser = `-- name: GetReservationByIDUser :many
-
-SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id_user = $1 ORDER BY created_at DESC
-`
-
-func (q *Queries) GetReservationByIDUser(ctx context.Context, idUser uuid.UUID) ([]Reservation, error) {
-	rows, err := q.db.QueryContext(ctx, getReservationByIDUser, idUser)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Reservation
-	for rows.Next() {
-		var i Reservation
-		if err := rows.Scan(
-			&i.ID,
-			&i.IDUser,
-			&i.IDRoom,
-			&i.CheckIn,
-			&i.CheckOut,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listAllReservations = `-- name: ListAllReservations :many
 
 SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" ORDER BY created_at DESC
@@ -149,6 +77,78 @@ SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "r
 
 func (q *Queries) ListAllReservations(ctx context.Context) ([]Reservation, error) {
 	rows, err := q.db.QueryContext(ctx, listAllReservations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reservation
+	for rows.Next() {
+		var i Reservation
+		if err := rows.Scan(
+			&i.ID,
+			&i.IDUser,
+			&i.IDRoom,
+			&i.CheckIn,
+			&i.CheckOut,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listReservationsByRoomID = `-- name: ListReservationsByRoomID :many
+
+SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id_room = $1 ORDER BY created_at DESC
+`
+
+func (q *Queries) ListReservationsByRoomID(ctx context.Context, idRoom uuid.UUID) ([]Reservation, error) {
+	rows, err := q.db.QueryContext(ctx, listReservationsByRoomID, idRoom)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reservation
+	for rows.Next() {
+		var i Reservation
+		if err := rows.Scan(
+			&i.ID,
+			&i.IDUser,
+			&i.IDRoom,
+			&i.CheckIn,
+			&i.CheckOut,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listReservationsByUserID = `-- name: ListReservationsByUserID :many
+
+SELECT id, id_user, id_room, check_in, check_out, created_at, updated_at FROM "reservation" WHERE id_user = $1 ORDER BY created_at DESC
+`
+
+func (q *Queries) ListReservationsByUserID(ctx context.Context, idUser uuid.UUID) ([]Reservation, error) {
+	rows, err := q.db.QueryContext(ctx, listReservationsByUserID, idUser)
 	if err != nil {
 		return nil, err
 	}

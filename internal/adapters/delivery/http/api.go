@@ -1,10 +1,13 @@
 package http
 
 import (
-	"github.com/labstack/echo/v4"
+	"net/http"
 	"os"
 	"reservify/internal/adapters/delivery/http/middlewares"
 	"reservify/internal/adapters/delivery/http/routes"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type API interface {
@@ -44,6 +47,7 @@ func NewAPI(options *Options) API {
 
 func (instance *api) Serve() {
 	instance.loadRoutes()
+	instance.echoInstance.Use(instance.getCORSSettings())
 	instance.echoInstance.Use(middlewares.GuardMiddleware)
 	port := os.Getenv("SERVER_PORT")
 
@@ -54,4 +58,19 @@ func (instance *api) loadRoutes() {
 	router := routes.New()
 
 	router.Load(instance.group)
+}
+
+func (instance *api) getCORSSettings() echo.MiddlewareFunc {
+	return middleware.CORSWithConfig(middleware.CORSConfig{
+		Skipper:         middlewares.OriginInspectSkipper,
+		AllowOriginFunc: middlewares.VerifyOrigin,
+		AllowMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodDelete,
+			http.MethodPatch,
+		},
+	})
 }

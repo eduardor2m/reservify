@@ -12,6 +12,10 @@ type Image struct {
 }
 
 func NewImage(image []image.Image) *[]Image {
+	if image == nil {
+		return nil
+	}
+
 	var images []Image
 	for _, image := range image {
 		images = append(images, Image{
@@ -21,5 +25,3 @@ func NewImage(image []image.Image) *[]Image {
 	}
 	return &images
 }
-
-

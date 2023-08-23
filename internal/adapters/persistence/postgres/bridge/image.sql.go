@@ -11,28 +11,28 @@ import (
 	"github.com/google/uuid"
 )
 
-const addImageToRoomByID = `-- name: AddImageToRoomByID :exec
+const addImageToRoomByRoomID = `-- name: AddImageToRoomByRoomID :exec
 
 INSERT INTO image (id_room, image_url) VALUES ($1,$2)
 `
 
-type AddImageToRoomByIDParams struct {
+type AddImageToRoomByRoomIDParams struct {
 	IDRoom   uuid.UUID
 	ImageUrl string
 }
 
-func (q *Queries) AddImageToRoomByID(ctx context.Context, arg AddImageToRoomByIDParams) error {
-	_, err := q.db.ExecContext(ctx, addImageToRoomByID, arg.IDRoom, arg.ImageUrl)
+func (q *Queries) AddImageToRoomByRoomID(ctx context.Context, arg AddImageToRoomByRoomIDParams) error {
+	_, err := q.db.ExecContext(ctx, addImageToRoomByRoomID, arg.IDRoom, arg.ImageUrl)
 	return err
 }
 
-const listAllImagesByRoomID = `-- name: ListAllImagesByRoomID :many
+const listImagesByRoomID = `-- name: ListImagesByRoomID :many
 
 SELECT id_room, image_url FROM image WHERE id_room = $1
 `
 
-func (q *Queries) ListAllImagesByRoomID(ctx context.Context, idRoom uuid.UUID) ([]Image, error) {
-	rows, err := q.db.QueryContext(ctx, listAllImagesByRoomID, idRoom)
+func (q *Queries) ListImagesByRoomID(ctx context.Context, idRoom uuid.UUID) ([]Image, error) {
+	rows, err := q.db.QueryContext(ctx, listImagesByRoomID, idRoom)
 	if err != nil {
 		return nil, err
 	}

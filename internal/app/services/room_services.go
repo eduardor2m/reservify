@@ -4,6 +4,7 @@ import (
 	"reservify/internal/app/entity/room"
 	"reservify/internal/app/interfaces/primary"
 	"reservify/internal/app/interfaces/repository"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -14,16 +15,22 @@ type RoomServices struct {
 	roomRepository repository.RoomLoader
 }
 
-func (instance *RoomServices) CreateRoom(r room.Room) error {
+func (instance *RoomServices) CreateRoom(r room.Room, tokenJwt string) error {
 	newRoomUUID, err := uuid.NewUUID()
 
 	if err != nil {
 		return err
 	}
 
-	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).Build()
+	createAt := time.Now()
 
-	return instance.roomRepository.CreateRoom(*formattedRoom)
+	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).WithCreatedAt(createAt).WithUpdatedAt(createAt).Build()
+
+	if err != nil {
+		return err
+	}
+
+	return instance.roomRepository.CreateRoom(*formattedRoom, tokenJwt)
 }
 
 func (instance *RoomServices) ListAllRooms() ([]room.Room, error) {
@@ -38,16 +45,16 @@ func (instance *RoomServices) GetRoomByCod(cod string) (*room.Room, error) {
 	return instance.roomRepository.GetRoomByCod(cod)
 }
 
-func (instance *RoomServices) DeleteRoomByID(id uuid.UUID) error {
-	return instance.roomRepository.DeleteRoomByID(id)
+func (instance *RoomServices) DeleteRoomByID(id uuid.UUID, tokenJwt string) error {
+	return instance.roomRepository.DeleteRoomByID(id, tokenJwt)
 }
 
-func (instance *RoomServices) AddImageToRoomById(id uuid.UUID, image_url string) error {
-	return instance.roomRepository.AddImageToRoomById(id, image_url)
+func (instance *RoomServices) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, tokenJwt string) error {
+	return instance.roomRepository.AddImageToRoomByRoomID(id, imageUrl, tokenJwt)
 }
 
-func (instance *RoomServices) ListAllImagesByRoomID(id uuid.UUID) (*room.Room, error) {
-	return instance.roomRepository.ListAllImagesByRoomID(id)
+func (instance *RoomServices) GetRoomWithImagesByRoomID(id uuid.UUID) (*room.Room, error) {
+	return instance.roomRepository.GetRoomWithImagesByRoomID(id)
 }
 
 func NewRoomServices(roomRepository repository.RoomLoader) *RoomServices {

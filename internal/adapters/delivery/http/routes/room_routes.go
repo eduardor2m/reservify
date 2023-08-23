@@ -12,7 +12,7 @@ func loadRoomRoutes(group *echo.Group) {
 
 	roomGroup.POST("", roomHandlers.CreateRoom)
 	roomGroup.GET("", roomHandlers.ListAllRooms)
-	roomGroup.GET("/image/:id", roomHandlers.ListAllRoomsWithImages)
+	roomGroup.GET("/image/:id", roomHandlers.GetRoomWithImages)
 	roomGroup.POST("/image", roomHandlers.AddImageToRoomById)
 	roomGroup.GET("/:id", roomHandlers.GetRoomByID)
 	roomGroup.GET("/cod/:cod", roomHandlers.GetRoomByCod)

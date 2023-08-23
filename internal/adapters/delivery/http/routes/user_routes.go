@@ -12,15 +12,10 @@ func loadUserRoutes(group *echo.Group) {
 
 	userGroup.POST("", userHandlers.CreateUser)
 	userGroup.POST("/login", userHandlers.LoginUser)
-	userGroup.POST("/reservation", userHandlers.CreateReservation)
-	userGroup.GET("/reservation", userHandlers.ListAllReservations)
-	userGroup.GET("/reservation/id/:id", userHandlers.GetReservationByID)
-	userGroup.GET("/reservation/idRoom/:id_room", userHandlers.GetReservationByIDRoom)
-	userGroup.GET("/reservation/idUser/:id_user", userHandlers.GetReservationByIDUser)
-	userGroup.DELETE("/reservation/id/:id", userHandlers.DeleteReservationByID)
 	userGroup.GET("", userHandlers.ListAllUsers)
 	userGroup.GET("/id/:id", userHandlers.GetUserByID)
-	userGroup.GET("/:name", userHandlers.GetUserByName)
+	userGroup.GET("/:name", userHandlers.GetUsersByName)
 	userGroup.PUT("/:email", userHandlers.UpdateUserByEmail)
+	userGroup.PUT("/admin/:id_user", userHandlers.UpdateAdminByUserID)
 	userGroup.DELETE("/:email", userHandlers.DeleteUserByEmail)
 }

@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"os"
 	"reservify/internal/adapters/persistence/postgres/bridge"
-	"reservify/internal/app/entity/reservation"
 	"reservify/internal/app/entity/user"
 	"reservify/internal/app/interfaces/repository"
-	"reservify/internal/utils/converters"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -22,41 +20,78 @@ type UserPostgresRepository struct {
 	connectorManager
 }
 
-func checkIfRoomIsAvailable(ctx context.Context, queries bridge.Queries, reservation reservation.Reservation) error {
-    reservationsDB, err := queries.GetReservationByIDRoom(ctx, reservation.IDRoom())
+func checkIfUserIsAdmin(tokenJwt string, queries bridge.Queries, ctx context.Context) error {
+	jwtSecretKey := os.Getenv("JWT_SECRET")
 
-    if err != nil {
-        return fmt.Errorf("falha ao obter reservas do banco de dados: %v", err)
-    }
+	token, err := jwt.Parse(tokenJwt[7:], func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecretKey), nil
+	})
 
-    newCheckIn, err := converters.ConverterFromStringToTime(reservation.CheckIn())
-    if err != nil {
-        return fmt.Errorf("falha ao converter data de check-in: %v", err)
-    }
+	if err != nil {
+		return fmt.Errorf("falha ao obter token: %v", err)
+	}
 
-    newCheckOut, err := converters.ConverterFromStringToTime(reservation.CheckOut())
-    if err != nil {
-        return fmt.Errorf("falha ao converter data de check-out: %v", err)
-    }
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID := claims["user_id"].(string)
 
-    for _, reservationDB := range reservationsDB {
-        dbCheckIn, err := converters.ConverterFromStringToTime(reservationDB.CheckIn)
-        if err != nil {
-            return fmt.Errorf("falha ao converter data de check-in do banco de dados: %v", err)
-        }
+		userIDFromToken, err := uuid.Parse(userID)
 
-        dbCheckOut, err := converters.ConverterFromStringToTime(reservationDB.CheckOut)
-        if err != nil {
-            return fmt.Errorf("falha ao converter data de check-out do banco de dados: %v", err)
-        }
+		if err != nil {
+			return fmt.Errorf("falha ao converter id do usuário: %v", err)
+		}
 
-        if (newCheckIn.Equal(dbCheckIn) || newCheckIn.Equal(dbCheckOut)) ||
-           (newCheckOut.Equal(dbCheckIn) || newCheckOut.Equal(dbCheckOut)) {
-            return fmt.Errorf("falha ao criar reserva: quarto indisponível")
-        }
-    }
+		userDB, err := queries.FindUserByID(ctx, userIDFromToken)
 
-    return nil
+		if err != nil {
+			return fmt.Errorf("falha ao encontrar usuário: %v", err)
+		}
+
+		if !userDB.Admin {
+			return fmt.Errorf("usuário não é administrador")
+		}
+
+	} else {
+		fmt.Println("Token inválido.")
+	}
+
+	return nil
+}
+
+func checkIfUserLogged(tokenJwt string, userID uuid.UUID, queries bridge.Queries, ctx context.Context) error {
+	jwtSecretKey := os.Getenv("JWT_SECRET")
+
+	token, err := jwt.Parse(tokenJwt[7:], func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecretKey), nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter token: %v", err)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userIDToken := claims["user_id"].(string)
+
+		userIDFromToken, err := uuid.Parse(userIDToken)
+
+		if err != nil {
+			return fmt.Errorf("falha ao converter id do usuário: %v", err)
+		}
+
+		userDB, err := queries.FindUserByID(ctx, userIDFromToken)
+
+		if err != nil {
+			return fmt.Errorf("falha ao encontrar usuário: %v", err)
+		}
+
+		if userDB.ID != userID {
+			return fmt.Errorf("usuário não é o mesmo")
+		}
+
+	} else {
+		return fmt.Errorf("token inválido")
+	}
+
+	return nil
 }
 
 func (instance UserPostgresRepository) CreateUser(u user.User) error {
@@ -72,10 +107,6 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 
 	queries := bridge.New(conn)
 
-	if err != nil {
-		return fmt.Errorf("falha ao criar usuário: %v", err)
-	}
-
 	err = queries.CreateUser(ctx, bridge.CreateUserParams{
 		ID:          u.ID(),
 		Name:        u.Name(),
@@ -84,9 +115,9 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 		Password:    u.Password(),
 		Phone:       u.Phone(),
 		DateOfBirth: u.DateOfBirth(),
-		Admin:       u.Admin(),
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		Admin:       false,
+		CreatedAt:   u.CreatedAt(),
+		UpdatedAt:   u.UpdatedAt(),
 	})
 
 	if err != nil {
@@ -98,25 +129,26 @@ func (instance UserPostgresRepository) CreateUser(u user.User) error {
 
 func (instance UserPostgresRepository) LoginUser(email string, password string) (*string, error) {
 	conn, err := instance.getConnection()
+
 	if err != nil {
-		return nil, fmt.Errorf("falha ao logar usuário: %v", err)
+		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 	defer instance.closeConnection(conn)
 
-	var userPass string
+	ctx := context.Background()
 
-	err = conn.QueryRow(`
-		SELECT password FROM "user" WHERE email = $1;
-	`, email).Scan(&userPass)
+	queries := bridge.New(conn)
+
+	userDB, err := queries.Login(ctx, email)
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao logar usuário: %v", err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(userPass), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(userDB.Password), []byte(password))
 
 	if err != nil {
-		return nil, fmt.Errorf("falha ao logar usuário: %v", err)
+		return nil, fmt.Errorf("falha ao comparar senha: %v", err)
 	}
 
 	jwtSecretKey := os.Getenv("JWT_SECRET")
@@ -125,269 +157,40 @@ func (instance UserPostgresRepository) LoginUser(email string, password string) 
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
-	claims["user_id"] = email
+	claims["user_id"] = userDB.ID
 	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
 
 	tokenString, err := token.SignedString([]byte(jwtSecretKey))
 
 	if err != nil {
-		return nil, fmt.Errorf("falha ao logar usuário: %v", err)
+		return nil, fmt.Errorf("falha ao criar token: %v", err)
 	}
 
 	return &tokenString, nil
 }
 
-func (instance UserPostgresRepository) CreateReservation(
-	reservation reservation.Reservation,
-) error {
-	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
-
-	if err != nil {
-		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	// func checkIfRoomIsAvailable() error {
-	// 	reservationsDB, err := queries.GetReservationByIDRoom(ctx, id)
-
-	// 	if err != nil {
-	// 		return fmt.Errorf("falha ao criar reserva: %v", err)
-	// 	}
-
-	// 	for _, reservationDB := range reservationsDB {
-	// 		if reservationDB.CheckIn.Before(reservation.CheckIn()) && reservationDB.CheckOut.After(reservation.CheckIn()) {
-	// 			return fmt.Errorf("falha ao criar reserva: quarto indisponível")
-	// 		}
-
-	// 		if reservationDB.CheckIn.Before(reservation.CheckOut()) && reservationDB.CheckOut.After(reservation.CheckOut()) {
-	// 			return fmt.Errorf("falha ao criar reserva: quarto indisponível")
-	// 		}
-	// 	}
-
-	// 	return nil
-	// }
-
-	err = checkIfRoomIsAvailable(ctx, *queries, reservation)
-
-	if err != nil {
-		return fmt.Errorf("falha ao criar reserva: %v", err)
-	}
-
-
-	err = queries.CreateReservation(ctx, bridge.CreateReservationParams{
-		ID:      reservation.ID(),	
-		IDUser:  reservation.IDUser(),
-		IDRoom:  reservation.IDRoom(),
-		CheckIn: reservation.CheckIn(),
-		CheckOut: reservation.CheckOut(),
-	})
-
-	if err != nil {
-		return fmt.Errorf("falha ao criar reserva: %v", err)
-	}
-
-	return nil
-}
-
-func (instance UserPostgresRepository) GetReservationByID(id uuid.UUID) (*reservation.Reservation, error) {
-	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
-
-	if err != nil {
-		return nil, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationDB, err := queries.GetReservationByID(ctx, id)
-
-	if err != nil {
-		return nil, fmt.Errorf("falha ao obter reserva: %v", err)
-	}
-
-	reservationReceived, err := reservation.NewBuilder().
-		WithID(reservationDB.ID).
-		WithIdUser(reservationDB.IDUser).
-		WithIdRoom(reservationDB.IDRoom).
-		WithCheckIn(reservationDB.CheckIn).
-		WithCheckOut(reservationDB.CheckOut).
-		Build()
-
-	if err != nil {
-		return nil, fmt.Errorf("falha ao obter reserva: %v", err)
-	}
-
-	return reservationReceived, nil
-}
-
-func (instance UserPostgresRepository) GetReservationByIDRoom(id uuid.UUID) ([]reservation.Reservation, error) {
-	var reservations []reservation.Reservation
-
-	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationsDB, err := queries.GetReservationByIDRoom(ctx, id)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter reservas: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		reservationReceived, err := reservation.NewBuilder().
-			WithID(reservationDB.ID).
-			WithIdUser(reservationDB.IDUser).
-			WithIdRoom(reservationDB.IDRoom).
-			WithCheckIn(reservationDB.CheckIn).
-			WithCheckOut(reservationDB.CheckOut).
-			Build()
-
-		if err != nil {
-			return reservations, fmt.Errorf("falha ao obter reservas: %v", err)
-		}
-
-		reservations = append(reservations, *reservationReceived)
-	}
-
-	return reservations, nil
-}
-
-func (instance UserPostgresRepository) GetReservationByIDUser(id uuid.UUID) ([]reservation.Reservation, error) {
-	var reservations []reservation.Reservation
-
-	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationsDB, err := queries.GetReservationByIDUser(ctx, id)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter reservas: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		reservationReceived, err := reservation.NewBuilder().
-			WithID(reservationDB.ID).
-			WithIdUser(reservationDB.IDUser).
-			WithIdRoom(reservationDB.IDRoom).
-			WithCheckIn(reservationDB.CheckIn).
-			WithCheckOut(reservationDB.CheckOut).
-			Build()
-
-		if err != nil {
-			return reservations, fmt.Errorf("falha ao obter reservas: %v", err)
-		}
-
-		reservations = append(reservations, *reservationReceived)
-	}
-
-	return reservations, nil
-}
-
-func (instance UserPostgresRepository) DeleteReservationByID(id uuid.UUID) error {
-	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
-
-	if err != nil {
-		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	err = queries.DeleteReservation(ctx, id)
-
-	if err != nil {
-		return fmt.Errorf("falha ao deletar reserva: %v", err)
-	}
-
-	return nil
-}
-
-func (instance UserPostgresRepository) ListAllReservations() ([]reservation.Reservation, error) {
-	var reservations []reservation.Reservation
-
-	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
-	}
-
-	queries := bridge.New(conn)
-
-	ctx := context.Background()
-
-	reservationsDB, err := queries.ListAllReservations(ctx)
-
-	if err != nil {
-		return reservations, fmt.Errorf("falha ao listar reservas: %v", err)
-	}
-
-	for _, reservationDB := range reservationsDB {
-		reservationReceived, err := reservation.NewBuilder().
-			WithID(reservationDB.ID).
-			WithIdUser(reservationDB.IDUser).
-			WithIdRoom(reservationDB.IDRoom).
-			WithCheckIn(reservationDB.CheckIn).
-			WithCheckOut(reservationDB.CheckOut).
-			WithCreatedAt(reservationDB.CreatedAt).
-			WithUpdatedAt(reservationDB.UpdatedAt).
-			Build()
-
-		if err != nil {
-			return reservations, fmt.Errorf("falha ao listar reservas: %v", err)
-		}
-
-		reservations = append(reservations, *reservationReceived)
-	}
-
-	return reservations, nil
-}
-
-func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
+func (instance UserPostgresRepository) ListAllUsers(tokenJwt string) ([]user.User, error) {
 	var users []user.User
 
 	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
 
 	if err != nil {
 		return users, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
+	defer instance.closeConnection(conn)
+
 	queries := bridge.New(conn)
 
 	ctx := context.Background()
 
-	usersDB, err := queries.ListAll(ctx)
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return users, err
+	}
+
+	usersDB, err := queries.ListAllUsers(ctx)
 
 	if err != nil {
 		return users, fmt.Errorf("falha ao listar usuários: %v", err)
@@ -417,7 +220,7 @@ func (instance UserPostgresRepository) ListAllUsers() ([]user.User, error) {
 	return users, nil
 }
 
-func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, error) {
+func (instance UserPostgresRepository) GetUserByID(id uuid.UUID, tokenJwt string) (*user.User, error) {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -430,7 +233,13 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 
 	ctx := context.Background()
 
-	userDB, err := queries.FindByID(ctx, id)
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userDB, err := queries.FindUserByID(ctx, id)
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao obter usuário: %v", err)
@@ -456,52 +265,45 @@ func (instance UserPostgresRepository) GetUserByID(id uuid.UUID) (*user.User, er
 	return userReceived, nil
 }
 
-func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, error) {
+func (instance UserPostgresRepository) GetUsersByName(name string, tokenJwt string) ([]user.User, error) {
 	var users []user.User
 
 	conn, err := instance.getConnection()
-
-	defer instance.closeConnection(conn)
 
 	if err != nil {
 		return users, fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
 	}
 
-	query := `
-		SELECT id, name, email, password, date_of_birth, admin, created_at, updated_at FROM "user" WHERE name = $1;
-	`
+	defer instance.closeConnection(conn)
 
-	rows, err := conn.Query(query, name)
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return users, err
+	}
+
+	usersDB, err := queries.ListUsersByName(ctx, name)
 
 	if err != nil {
 		return users, fmt.Errorf("falha ao listar usuários: %v", err)
 	}
 
-	defer func() {
-		err := rows.Close()
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	for rows.Next() {
-		var id uuid.UUID
-		var name, email, password, dateOfBirth string
-		var createdAt, updatedAt time.Time
-		var admin bool
-
-		err := rows.Scan(&id, &name, &email, &password, &dateOfBirth, &admin, &createdAt, &updatedAt)
-		if err != nil {
-			return users, fmt.Errorf("falha ao listar usuários: %v", err)
-		}
-
+	for _, userDB := range usersDB {
 		userReceived, err := user.NewBuilder().
-			WithID(id).
-			WithName(name).
-			WithEmail(email).
-			WithPassword(password).
-			WithDateOfBirth(dateOfBirth).
-			WithAdmin(admin).
+			WithID(userDB.ID).
+			WithName(userDB.Name).
+			WithEmail(userDB.Email).
+			WithPassword(userDB.Password).
+			WithDateOfBirth(userDB.DateOfBirth).
+			WithCPF(userDB.Cpf).
+			WithPhone(userDB.Phone).
+			WithAdmin(userDB.Admin).
+			WithCreatedAt(userDB.CreatedAt).
+			WithUpdatedAt(userDB.UpdatedAt).
 			Build()
 
 		if err != nil {
@@ -514,7 +316,7 @@ func (instance UserPostgresRepository) GetUserByName(name string) ([]user.User, 
 	return users, nil
 }
 
-func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user.User) error {
+func (instance UserPostgresRepository) UpdateUserByEmail(email string, tokenJwt string, user user.User) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -527,7 +329,13 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user
 
 	ctx := context.Background()
 
-	err = queries.UpdateByEmail(ctx, bridge.UpdateByEmailParams{
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = queries.UpdateUserByEmail(ctx, bridge.UpdateUserByEmailParams{
 		Name:        user.Name(),
 		Cpf:         user.CPF(),
 		Email:       user.Email(),
@@ -545,7 +353,7 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, user user
 	return nil
 }
 
-func (instance UserPostgresRepository) DeleteUserByEmail(email string) error {
+func (instance UserPostgresRepository) UpdateAdminByUserID(userID uuid.UUID, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -558,7 +366,44 @@ func (instance UserPostgresRepository) DeleteUserByEmail(email string) error {
 
 	ctx := context.Background()
 
-	err = queries.DeleteByEmail(ctx, email)
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = queries.UpdateAdminByUserID(ctx, bridge.UpdateAdminByUserIDParams{
+		Admin: true,
+		ID:    userID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao atualizar o campo admin para o usuario: %v", err)
+	}
+
+	return nil
+}
+
+func (instance UserPostgresRepository) DeleteUserByEmail(email string, tokenJwt string) error {
+	conn, err := instance.getConnection()
+
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = queries.DeleteUserByEmail(ctx, email)
 
 	if err != nil {
 		return fmt.Errorf("falha ao deletar usuário: %v", err)

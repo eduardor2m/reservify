@@ -12,3 +12,7 @@ func GetUserServices() primary.UserManager {
 func GetRoomServices() primary.RoomManager {
 	return services.NewRoomServices(GetRoomRepository())
 }
+
+func GetReservationServices() primary.ReservationManager {
+	return services.NewReservationServices(GetReservationRepository())
+}
