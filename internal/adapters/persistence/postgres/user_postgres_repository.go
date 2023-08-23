@@ -353,6 +353,38 @@ func (instance UserPostgresRepository) UpdateUserByEmail(email string, tokenJwt 
 	return nil
 }
 
+func (instance UserPostgresRepository) UpdateAdminByUserID(userID uuid.UUID, tokenJwt string) error {
+	conn, err := instance.getConnection()
+	
+	if err != nil {
+		return fmt.Errorf("falha ao obter conexão com o banco de dados: %v", err)
+	}
+
+	defer instance.closeConnection(conn)
+
+	queries := bridge.New(conn)
+
+	ctx := context.Background()
+
+	err = checkIfUserIsAdmin(tokenJwt, *queries, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = queries.UpdateAdminByUserID(ctx, bridge.UpdateAdminByUserIDParams{
+		Admin: true,
+		ID: userID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("falha ao atualizar o campo admin para o usuario: %v", err)
+	}
+
+	return nil
+}
+
+
 func (instance UserPostgresRepository) DeleteUserByEmail(email string, tokenJwt string) error {
 	conn, err := instance.getConnection()
 

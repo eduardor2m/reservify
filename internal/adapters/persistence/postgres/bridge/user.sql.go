@@ -203,6 +203,20 @@ func (q *Queries) Login(ctx context.Context, email string) (User, error) {
 	return i, err
 }
 
+const updateAdminByUserID = `-- name: UpdateAdminByUserID :exec
+UPDATE "user" SET "admin" = $1 WHERE "id" = $2
+`
+
+type UpdateAdminByUserIDParams struct {
+	Admin bool
+	ID    uuid.UUID
+}
+
+func (q *Queries) UpdateAdminByUserID(ctx context.Context, arg UpdateAdminByUserIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateAdminByUserID, arg.Admin, arg.ID)
+	return err
+}
+
 const updateUserByEmail = `-- name: UpdateUserByEmail :exec
 
 UPDATE "user" SET "name" = $1, "cpf" = $2, "email" = $3, "password" = $4, "phone" = $5, "date_of_birth" = $6, "admin" = $7, "created_at" = $8, "updated_at" = $9 WHERE "email" = $10

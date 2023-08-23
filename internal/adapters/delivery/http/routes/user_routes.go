@@ -16,5 +16,6 @@ func loadUserRoutes(group *echo.Group) {
 	userGroup.GET("/id/:id", userHandlers.GetUserByID)
 	userGroup.GET("/:name", userHandlers.GetUsersByName)
 	userGroup.PUT("/:email", userHandlers.UpdateUserByEmail)
+	userGroup.PUT("/admin/:id_user", userHandlers.UpdateAdminByUserID)
 	userGroup.DELETE("/:email", userHandlers.DeleteUserByEmail)
 }

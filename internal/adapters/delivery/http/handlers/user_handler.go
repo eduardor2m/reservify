@@ -184,6 +184,25 @@ func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
 	return context.JSON(http.StatusLocked, response.InfoResponse{Message: "Not implemented yet"})
 }
 
+func (instance UserHandler) UpdateAdminByUserID(context echo.Context) error {
+	id := context.Param("id_user")
+	idParse, err := uuid.Parse(id)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+
+	token := context.Request().Header.Get("Authorization")
+
+	err = instance.service.UpdateAdminByUserID(idParse, token)
+
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+	}
+	
+	return context.JSON(http.StatusOK, response.InfoResponse{Message: "campo admin do usuario foi atualizado"})
+}
+
 // DeleteUserByEmail
 // @ID DeleteUserByEmail
 // @Summary Deleta um usuário pelo email.

@@ -62,6 +62,10 @@ func (instance *UserServices) UpdateUserByEmail(email string, tokenJwt string, u
 	return instance.userRepository.UpdateUserByEmail(email, tokenJwt, user)
 }
 
+func (instance *UserServices) UpdateAdminByUserID(userID uuid.UUID, tokenJwt string) error {
+	return instance.userRepository.UpdateAdminByUserID(userID, tokenJwt)
+}
+
 func (instance *UserServices) DeleteUserByEmail(email string, tokenJwt string) error {
 	return instance.userRepository.DeleteUserByEmail(email, tokenJwt)
 }

@@ -26,6 +26,9 @@ SELECT * FROM "user" ORDER BY "id";
 
 UPDATE "user" SET "name" = $1, "cpf" = $2, "email" = $3, "password" = $4, "phone" = $5, "date_of_birth" = $6, "admin" = $7, "created_at" = $8, "updated_at" = $9 WHERE "email" = $10;
 
+-- name: UpdateAdminByUserID :exec
+UPDATE "user" SET "admin" = $1 WHERE "id" = $2; 
+
 -- name: DeleteUserByEmail :exec
 
 DELETE FROM "user" WHERE "email" = $1;
