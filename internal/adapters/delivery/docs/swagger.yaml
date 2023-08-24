@@ -1,15 +1,151 @@
-basePath: /api
+definitions:
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  response.InfoResponse:
+    properties:
+      message:
+        type: string
+    type: object
 info:
-  contact:
-    email: deveduardomelo@gmail.com
-    name: Eduardo Melo
-  description: Reserva de quartos para Hotéis
-  title: Reservify API
-  version: "1.0"
-paths: {}
-securityDefinitions:
-  bearerAuth:
-    in: header
-    name: Authorization
-    type: apiKey
+  contact: {}
+paths:
+  /user:
+    get:
+      description: Lista todos os usuários.
+      operationId: ListAllUsers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Requisição realizada com sucesso.
+          schema:
+            type: string
+        "401":
+          description: Failed to load user list
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Lista todos os usuários.
+      tags:
+      - User
+    post:
+      description: Cria um novo usuário.
+      operationId: CreateUser
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "401":
+          description: Access denied.
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Cria um novo usuário.
+      tags:
+      - User
+  /user/{email}:
+    delete:
+      description: Deleta um usuário pelo email.
+      operationId: DeleteUserByEmail
+      parameters:
+      - description: Email do usuário
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Requisição realizada com sucesso.
+          schema:
+            type: string
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Deleta um usuário pelo email.
+      tags:
+      - User
+    put:
+      description: Atualiza um usuário pelo email.
+      operationId: UpdateUserByEmail
+      parameters:
+      - description: Email do usuário
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Requisição realizada com sucesso.
+          schema:
+            type: string
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Atualiza um usuário pelo email.
+      tags:
+      - User
+  /user/{name}:
+    get:
+      description: Busca um usuário pelo nome.
+      operationId: GetUserByName
+      parameters:
+      - description: Nome do usuário
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Requisição realizada com sucesso.
+          schema:
+            type: string
+        "401":
+          description: Failed to load user
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Busca um usuário pelo nome.
+      tags:
+      - User
+  /user/login:
+    post:
+      description: Realiza o login do usuário.
+      operationId: LoginUser
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged successfully
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "401":
+          description: User is not authorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      summary: Realiza o login do usuário.
+      tags:
+      - User
 swagger: "2.0"

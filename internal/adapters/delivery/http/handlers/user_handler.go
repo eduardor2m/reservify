@@ -16,6 +16,7 @@ type UserHandler struct {
 }
 
 // CreateUser godoc
+// 
 // @ID CreateUser
 // @Summary Cria um novo usuário.
 // @Description Cria um novo usuário.
@@ -23,9 +24,8 @@ type UserHandler struct {
 // @Tags User
 // @Produce json
 // @Success 200 {object} response.InfoResponse "User created successfully"
-// @Failure 401 {object} response.ErrorMessage "Acesso não autorizado."
+// @Failure 401 {object} response.ErrorResponse "Access denied."
 // @Router /user [post]
-
 func (instance UserHandler) CreateUser(context echo.Context) error {
 	var userDTO request.UserDTO
 
@@ -49,6 +49,7 @@ func (instance UserHandler) CreateUser(context echo.Context) error {
 }
 
 // LoginUser
+// 
 // @ID LoginUser
 // @Summary Realiza o login do usuário.
 // @Description Realiza o login do usuário.
@@ -56,9 +57,8 @@ func (instance UserHandler) CreateUser(context echo.Context) error {
 // @Tags User
 // @Produce json
 // @Success 200 {object} response.InfoResponse "User logged successfully"
-// @Failure 401 {object} response.ErrorMessage
+// @Failure 401 {object} response.ErrorResponse "User is not authorized"
 // @Router /user/login [post]
-
 func (instance UserHandler) LoginUser(context echo.Context) error {
 	var userDTO request.UserDTO
 
@@ -78,16 +78,16 @@ func (instance UserHandler) LoginUser(context echo.Context) error {
 }
 
 // ListAllUsers
+// 
 // @ID ListAllUsers
 // @Summary Lista todos os usuários.
 // @Description Lista todos os usuários.
 // @Security bearerAuth
 // @Tags User
 // @Produce json
-// @Success 200 {object} []User
-// @Failure 401 {object} response.ErrorMessage
+// @Success 200 {object} string "Requisição realizada com sucesso."
+// @Failure 401 {object} response.ErrorResponse "Failed to load user list"
 // @Router /user [get]
-
 func (instance UserHandler) ListAllUsers(context echo.Context) error {
 	token := context.Request().Header.Get("Authorization")
 
@@ -111,7 +111,6 @@ func (instance UserHandler) ListAllUsers(context echo.Context) error {
 }
 
 // GetUserByID
-
 func (instance UserHandler) GetUserByID(context echo.Context) error {
 	id := context.Param("id")
 
@@ -133,6 +132,7 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 }
 
 // GetUserByName
+// 
 // @ID GetUserByName
 // @Summary Busca um usuário pelo nome.
 // @Description Busca um usuário pelo nome.
@@ -140,10 +140,9 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 // @Tags User
 // @Produce json
 // @Param name path string true "Nome do usuário"
-// @Success 200 {object} []User
-// @Failure 401 {object} response.ErrorMessage
+// @Success 200 {object} string "Requisição realizada com sucesso."
+// @Failure 401 {object} response.ErrorResponse "Failed to load user"
 // @Router /user/{name} [get]
-
 func (instance UserHandler) GetUsersByName(context echo.Context) error {
 	name := context.Param("name")
 	token := context.Request().Header.Get("Authorization")
@@ -169,6 +168,7 @@ func (instance UserHandler) GetUsersByName(context echo.Context) error {
 }
 
 // UpdateUserByEmail
+// 
 // @ID UpdateUserByEmail
 // @Summary Atualiza um usuário pelo email.
 // @Description Atualiza um usuário pelo email.
@@ -176,10 +176,9 @@ func (instance UserHandler) GetUsersByName(context echo.Context) error {
 // @Tags User
 // @Produce json
 // @Param email path string true "Email do usuário"
-// @Success 200 {object} []User
-// @Failure 401 {object} response.ErrorMessage
+// @Success 200 {object} string "Requisição realizada com sucesso."
+// @Failure 401 {object} response.ErrorResponse "Invalid credentials"
 // @Router /user/{email} [put]
-
 func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
 	return context.JSON(http.StatusLocked, response.InfoResponse{Message: "Not implemented yet"})
 }
@@ -204,6 +203,7 @@ func (instance UserHandler) UpdateAdminByUserID(context echo.Context) error {
 }
 
 // DeleteUserByEmail
+// 
 // @ID DeleteUserByEmail
 // @Summary Deleta um usuário pelo email.
 // @Description Deleta um usuário pelo email.
@@ -211,10 +211,9 @@ func (instance UserHandler) UpdateAdminByUserID(context echo.Context) error {
 // @Tags User
 // @Produce json
 // @Param email path string true "Email do usuário"
-// @Success 200 {object} []User
-// @Failure 401 {object} response.ErrorMessage
+// @Success 200 {object} string "Requisição realizada com sucesso."
+// @Failure 401 {object} response.ErrorResponse "Invalid credentials"
 // @Router /user/{email} [delete]
-
 func (instance UserHandler) DeleteUserByEmail(context echo.Context) error {
 	email := context.Param("email")
 	token := context.Request().Header.Get("Authorization")
