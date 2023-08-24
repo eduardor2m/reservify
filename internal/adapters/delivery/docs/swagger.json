@@ -4,31 +4,37 @@
         "contact": {}
     },
     "paths": {
-        "/user": {
+        "/reservations": {
             "get": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Lista todos os usuários.",
+                "description": "Retorna uma lista de todas as reservas de salas",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Reserva"
                 ],
-                "summary": "Lista todos os usuários.",
-                "operationId": "ListAllUsers",
+                "summary": "Lista todas as reservas de salas",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Requisição realizada com sucesso.",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Reservation"
+                            }
                         }
                     },
-                    "401": {
-                        "description": "Failed to load user list",
+                    "400": {
+                        "description": "Erro ao listar reservas de salas",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -36,102 +42,252 @@
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Cria um novo usuário.",
+                "description": "Cria uma nova reserva de sala com base nos detalhes fornecidos",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Reserva"
                 ],
-                "summary": "Cria um novo usuário.",
-                "operationId": "CreateUser",
-                "responses": {
-                    "200": {
-                        "description": "User created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.InfoResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Access denied.",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/login": {
-            "post": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Realiza o login do usuário.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Realiza o login do usuário.",
-                "operationId": "LoginUser",
-                "responses": {
-                    "200": {
-                        "description": "User logged successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.InfoResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "User is not authorized",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/{email}": {
-            "put": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Atualiza um usuário pelo email.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Atualiza um usuário pelo email.",
-                "operationId": "UpdateUserByEmail",
+                "summary": "Cria uma nova reserva de sala",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Email do usuário",
-                        "name": "email",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Detalhes da reserva a ser criada",
+                        "name": "reservationDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReservationDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reserva de sala realizada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao criar reserva de sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservations/my": {
+            "post": {
+                "description": "Cria uma nova reserva de sala com base nos detalhes fornecidos pelo usuário autenticado",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reserva"
+                ],
+                "summary": "Cria uma nova reserva de sala para o usuário autenticado",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Detalhes da reserva a ser criada",
+                        "name": "reservationDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReservationDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reserva de sala realizada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao criar reserva de sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservations/my/{id}": {
+            "delete": {
+                "description": "Deleta uma reserva de sala do usuário autenticado com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reserva"
+                ],
+                "summary": "Deleta uma reserva de sala do usuário autenticado por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da reserva",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reserva de sala deletada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao deletar reserva de sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservations/room/{id_room}": {
+            "get": {
+                "description": "Retorna as reservas de salas com base no ID da sala fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reserva"
+                ],
+                "summary": "Obtém as reservas de salas por ID de sala",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da sala",
+                        "name": "id_room",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Reservation"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao obter reservas de salas por ID de sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservations/user/{id_user}": {
+            "get": {
+                "description": "Retorna as reservas de salas com base no ID do usuário fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reserva"
+                ],
+                "summary": "Obtém as reservas de salas por ID de usuário",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do usuário",
+                        "name": "id_user",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Requisição realizada com sucesso.",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Reservation"
+                            }
                         }
                     },
-                    "401": {
-                        "description": "Invalid credentials",
+                    "400": {
+                        "description": "Erro ao obter reservas de salas por ID de usuário",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservations/{id}": {
+            "get": {
+                "description": "Retorna os detalhes de uma reserva de sala com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reserva"
+                ],
+                "summary": "Obtém detalhes de uma reserva de sala por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da reserva",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Reservation"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao obter detalhes da reserva de sala",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -139,38 +295,39 @@
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Deleta um usuário pelo email.",
+                "description": "Deleta uma reserva de sala com base no ID fornecido",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Reserva"
                 ],
-                "summary": "Deleta um usuário pelo email.",
-                "operationId": "DeleteUserByEmail",
+                "summary": "Deleta uma reserva de sala por ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Email do usuário",
-                        "name": "email",
+                        "description": "ID da reserva",
+                        "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Requisição realizada com sucesso.",
+                        "description": "Reserva de sala deletada com sucesso",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.InfoResponse"
                         }
                     },
-                    "401": {
-                        "description": "Invalid credentials",
+                    "400": {
+                        "description": "Erro ao deletar reserva de sala",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -178,22 +335,473 @@
                 }
             }
         },
-        "/user/{name}": {
+        "/rooms": {
             "get": {
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Busca um usuário pelo nome.",
+                "description": "Retorna uma lista de todas as salas disponíveis",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Sala"
                 ],
-                "summary": "Busca um usuário pelo nome.",
-                "operationId": "GetUserByName",
+                "summary": "Lista todas as salas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Room"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao listar salas",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria uma nova sala com os detalhes fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sala"
+                ],
+                "summary": "Cria uma nova sala",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Detalhes da sala a ser criada",
+                        "name": "roomDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RoomDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sala criada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de requisição inválida ou criação de sala falhou",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms/image": {
+            "post": {
+                "description": "Adiciona uma imagem a uma sala com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sala"
+                ],
+                "summary": "Adiciona uma imagem a uma sala por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Detalhes da imagem a ser adicionada",
+                        "name": "imageDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ImageDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Imagem adicionada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao adicionar imagem à sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms/{cod}": {
+            "get": {
+                "description": "Retorna os detalhes de uma sala com base no código fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sala"
+                ],
+                "summary": "Obtém detalhes de uma sala por Código",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Código da sala",
+                        "name": "cod",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Room"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao obter detalhes da sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms/{id}": {
+            "get": {
+                "description": "Retorna os detalhes de uma sala com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sala"
+                ],
+                "summary": "Obtém detalhes de uma sala por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da sala",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Room"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao obter detalhes da sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deleta uma sala com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sala"
+                ],
+                "summary": "Deleta uma sala por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID da sala",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sala deletada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao deletar sala",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms/{id}/images": {
+            "get": {
+                "description": "Retorna os detalhes de uma sala, incluindo suas imagens, com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sala"
+                ],
+                "summary": "Obtém detalhes de uma sala com imagens por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da sala",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Room"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao obter detalhes da sala com imagens",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Retorna uma lista de todos os usuários registrados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Lista todos os usuários",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao listar usuários",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria um novo usuário com base nos detalhes fornecidos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Cria um novo usuário",
+                "parameters": [
+                    {
+                        "description": "Detalhes do usuário a ser criado",
+                        "name": "userDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário criado com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao criar usuário",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/admin/{id_user}": {
+            "put": {
+                "description": "Atualiza o status de administrador de um usuário com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Atualiza o status de administrador de um usuário por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do usuário",
+                        "name": "id_user",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campo admin do usuário foi atualizado",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao atualizar status de administrador do usuário",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/email/{email}": {
+            "delete": {
+                "description": "Deleta um usuário com base no email fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Deleta um usuário por email",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email do usuário",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário deletado com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao deletar usuário",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "description": "Realiza o login de um usuário com base no email e senha fornecidos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Realiza o login de um usuário",
+                "parameters": [
+                    {
+                        "description": "Detalhes do usuário para login",
+                        "name": "userDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário logado com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao realizar login",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/name/{name}": {
+            "get": {
+                "description": "Retorna uma lista de usuários com base no nome fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Obtém usuários por nome",
                 "parameters": [
                     {
                         "type": "string",
@@ -201,17 +809,105 @@
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Requisição realizada com sucesso.",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
                         }
                     },
-                    "401": {
-                        "description": "Failed to load user",
+                    "400": {
+                        "description": "Erro ao obter usuários por nome",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{email}": {
+            "put": {
+                "description": "Atualiza informações de um usuário com base no email fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Atualiza um usuário por email",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email do usuário",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "423": {
+                        "description": "Atualização de usuário não implementada ainda",
+                        "schema": {
+                            "$ref": "#/definitions/response.InfoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "description": "Retorna os detalhes de um usuário com base no ID fornecido",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Obtém detalhes de um usuário por ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do usuário",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token de autenticação do usuário",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao obter detalhes do usuário",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -221,6 +917,88 @@
         }
     },
     "definitions": {
+        "request.ImageDTO": {
+            "type": "object",
+            "properties": {
+                "id_room": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ReservationDTO": {
+            "type": "object",
+            "properties": {
+                "check_in": {
+                    "type": "string"
+                },
+                "check_out": {
+                    "type": "string"
+                },
+                "id_room": {
+                    "type": "string"
+                },
+                "id_user": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.RoomDTO": {
+            "type": "object",
+            "properties": {
+                "cod": {
+                    "type": "string",
+                    "example": "New room cod"
+                },
+                "number": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "price": {
+                    "type": "number",
+                    "example": 100
+                },
+                "vacancies": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "request.UserDTO": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "cpf": {
+                    "type": "string",
+                    "example": "12345678901"
+                },
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "01/01/2000"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "johndoe@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "New user name"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "(11) 99999-9999"
+                }
+            }
+        },
         "response.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -229,10 +1007,111 @@
                 }
             }
         },
+        "response.Image": {
+            "type": "object",
+            "properties": {
+                "id_room": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                }
+            }
+        },
         "response.InfoResponse": {
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Reservation": {
+            "type": "object",
+            "properties": {
+                "check_in": {
+                    "type": "string"
+                },
+                "check_out": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "id_room": {
+                    "type": "string"
+                },
+                "id_user": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Room": {
+            "type": "object",
+            "properties": {
+                "cod": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Image"
+                    }
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "vacancies": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

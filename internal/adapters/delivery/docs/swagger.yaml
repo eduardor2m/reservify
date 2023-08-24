@@ -1,7 +1,71 @@
 definitions:
+  request.ImageDTO:
+    properties:
+      id_room:
+        type: string
+      image_url:
+        type: string
+    type: object
+  request.ReservationDTO:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      id_room:
+        type: string
+      id_user:
+        type: string
+    type: object
+  request.RoomDTO:
+    properties:
+      cod:
+        example: New room cod
+        type: string
+      number:
+        example: 1
+        type: integer
+      price:
+        example: 100
+        type: number
+      vacancies:
+        example: 2
+        type: integer
+    type: object
+  request.UserDTO:
+    properties:
+      admin:
+        example: false
+        type: boolean
+      cpf:
+        example: "12345678901"
+        type: string
+      date_of_birth:
+        example: 01/01/2000
+        type: string
+      email:
+        example: johndoe@example.com
+        type: string
+      name:
+        example: New user name
+        type: string
+      password:
+        example: "123456"
+        type: string
+      phone:
+        example: (11) 99999-9999
+        type: string
+    type: object
   response.ErrorResponse:
     properties:
       message:
+        type: string
+    type: object
+  response.Image:
+    properties:
+      id_room:
+        type: string
+      image_url:
         type: string
     type: object
   response.InfoResponse:
@@ -9,143 +73,674 @@ definitions:
       message:
         type: string
     type: object
+  response.Reservation:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      id_room:
+        type: string
+      id_user:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.Room:
+    properties:
+      cod:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          $ref: '#/definitions/response.Image'
+        type: array
+      number:
+        type: integer
+      price:
+        type: number
+      updated_at:
+        type: string
+      vacancies:
+        type: integer
+    type: object
+  response.User:
+    properties:
+      admin:
+        type: boolean
+      cpf:
+        type: string
+      created_at:
+        type: string
+      date_of_birth:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /user:
+  /reservations:
     get:
-      description: Lista todos os usuários.
-      operationId: ListAllUsers
+      description: Retorna uma lista de todas as reservas de salas
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Requisição realizada com sucesso.
+          description: OK
           schema:
-            type: string
-        "401":
-          description: Failed to load user list
+            items:
+              $ref: '#/definitions/response.Reservation'
+            type: array
+        "400":
+          description: Erro ao listar reservas de salas
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Lista todos os usuários.
+      summary: Lista todas as reservas de salas
       tags:
-      - User
+      - Reserva
     post:
-      description: Cria um novo usuário.
-      operationId: CreateUser
+      description: Cria uma nova reserva de sala com base nos detalhes fornecidos
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Detalhes da reserva a ser criada
+        in: body
+        name: reservationDTO
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReservationDTO'
       produces:
       - application/json
       responses:
         "200":
-          description: User created successfully
+          description: Reserva de sala realizada com sucesso
           schema:
             $ref: '#/definitions/response.InfoResponse'
-        "401":
-          description: Access denied.
+        "400":
+          description: Erro ao criar reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Cria um novo usuário.
+      summary: Cria uma nova reserva de sala
       tags:
-      - User
-  /user/{email}:
+      - Reserva
+  /reservations/{id}:
     delete:
-      description: Deleta um usuário pelo email.
-      operationId: DeleteUserByEmail
+      description: Deleta uma reserva de sala com base no ID fornecido
       parameters:
-      - description: Email do usuário
+      - description: ID da reserva
         in: path
-        name: email
+        name: id
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Requisição realizada com sucesso.
+          description: Reserva de sala deletada com sucesso
           schema:
-            type: string
-        "401":
-          description: Invalid credentials
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Deleta um usuário pelo email.
-      tags:
-      - User
-    put:
-      description: Atualiza um usuário pelo email.
-      operationId: UpdateUserByEmail
-      parameters:
-      - description: Email do usuário
-        in: path
-        name: email
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Requisição realizada com sucesso.
-          schema:
-            type: string
-        "401":
-          description: Invalid credentials
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao deletar reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Atualiza um usuário pelo email.
+      summary: Deleta uma reserva de sala por ID
       tags:
-      - User
-  /user/{name}:
+      - Reserva
     get:
-      description: Busca um usuário pelo nome.
-      operationId: GetUserByName
+      description: Retorna os detalhes de uma reserva de sala com base no ID fornecido
+      parameters:
+      - description: ID da reserva
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Reservation'
+        "400":
+          description: Erro ao obter detalhes da reserva de sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém detalhes de uma reserva de sala por ID
+      tags:
+      - Reserva
+  /reservations/my:
+    post:
+      description: Cria uma nova reserva de sala com base nos detalhes fornecidos
+        pelo usuário autenticado
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Detalhes da reserva a ser criada
+        in: body
+        name: reservationDTO
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReservationDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reserva de sala realizada com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao criar reserva de sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Cria uma nova reserva de sala para o usuário autenticado
+      tags:
+      - Reserva
+  /reservations/my/{id}:
+    delete:
+      description: Deleta uma reserva de sala do usuário autenticado com base no ID
+        fornecido
+      parameters:
+      - description: ID da reserva
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reserva de sala deletada com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao deletar reserva de sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Deleta uma reserva de sala do usuário autenticado por ID
+      tags:
+      - Reserva
+  /reservations/room/{id_room}:
+    get:
+      description: Retorna as reservas de salas com base no ID da sala fornecido
+      parameters:
+      - description: ID da sala
+        in: path
+        name: id_room
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Reservation'
+            type: array
+        "400":
+          description: Erro ao obter reservas de salas por ID de sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém as reservas de salas por ID de sala
+      tags:
+      - Reserva
+  /reservations/user/{id_user}:
+    get:
+      description: Retorna as reservas de salas com base no ID do usuário fornecido
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id_user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Reservation'
+            type: array
+        "400":
+          description: Erro ao obter reservas de salas por ID de usuário
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém as reservas de salas por ID de usuário
+      tags:
+      - Reserva
+  /rooms:
+    get:
+      description: Retorna uma lista de todas as salas disponíveis
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Room'
+            type: array
+        "400":
+          description: Erro ao listar salas
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Lista todas as salas
+      tags:
+      - Sala
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova sala com os detalhes fornecidos
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Detalhes da sala a ser criada
+        in: body
+        name: roomDTO
+        required: true
+        schema:
+          $ref: '#/definitions/request.RoomDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sala criada com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro de requisição inválida ou criação de sala falhou
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Cria uma nova sala
+      tags:
+      - Sala
+  /rooms/{cod}:
+    get:
+      description: Retorna os detalhes de uma sala com base no código fornecido
+      parameters:
+      - description: Código da sala
+        in: path
+        name: cod
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Room'
+        "400":
+          description: Erro ao obter detalhes da sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém detalhes de uma sala por Código
+      tags:
+      - Sala
+  /rooms/{id}:
+    delete:
+      description: Deleta uma sala com base no ID fornecido
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID da sala
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sala deletada com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao deletar sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Deleta uma sala por ID
+      tags:
+      - Sala
+    get:
+      description: Retorna os detalhes de uma sala com base no ID fornecido
+      parameters:
+      - description: ID da sala
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Room'
+        "400":
+          description: Erro ao obter detalhes da sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém detalhes de uma sala por ID
+      tags:
+      - Sala
+  /rooms/{id}/images:
+    get:
+      description: Retorna os detalhes de uma sala, incluindo suas imagens, com base
+        no ID fornecido
+      parameters:
+      - description: ID da sala
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Room'
+        "400":
+          description: Erro ao obter detalhes da sala com imagens
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém detalhes de uma sala com imagens por ID
+      tags:
+      - Sala
+  /rooms/image:
+    post:
+      description: Adiciona uma imagem a uma sala com base no ID fornecido
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Detalhes da imagem a ser adicionada
+        in: body
+        name: imageDTO
+        required: true
+        schema:
+          $ref: '#/definitions/request.ImageDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Imagem adicionada com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao adicionar imagem à sala
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Adiciona uma imagem a uma sala por ID
+      tags:
+      - Sala
+  /users:
+    get:
+      description: Retorna uma lista de todos os usuários registrados
+      parameters:
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.User'
+            type: array
+        "400":
+          description: Erro ao listar usuários
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Lista todos os usuários
+      tags:
+      - Usuário
+    post:
+      description: Cria um novo usuário com base nos detalhes fornecidos
+      parameters:
+      - description: Detalhes do usuário a ser criado
+        in: body
+        name: userDTO
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usuário criado com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao criar usuário
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Cria um novo usuário
+      tags:
+      - Usuário
+  /users/{email}:
+    put:
+      description: Atualiza informações de um usuário com base no email fornecido
+      parameters:
+      - description: Email do usuário
+        in: path
+        name: email
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "423":
+          description: Atualização de usuário não implementada ainda
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+      summary: Atualiza um usuário por email
+      tags:
+      - Usuário
+  /users/{id}:
+    get:
+      description: Retorna os detalhes de um usuário com base no ID fornecido
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.User'
+        "400":
+          description: Erro ao obter detalhes do usuário
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtém detalhes de um usuário por ID
+      tags:
+      - Usuário
+  /users/admin/{id_user}:
+    put:
+      description: Atualiza o status de administrador de um usuário com base no ID
+        fornecido
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id_user
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campo admin do usuário foi atualizado
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao atualizar status de administrador do usuário
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Atualiza o status de administrador de um usuário por ID
+      tags:
+      - Usuário
+  /users/email/{email}:
+    delete:
+      description: Deleta um usuário com base no email fornecido
+      parameters:
+      - description: Email do usuário
+        in: path
+        name: email
+        required: true
+        type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usuário deletado com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao deletar usuário
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Deleta um usuário por email
+      tags:
+      - Usuário
+  /users/login:
+    post:
+      description: Realiza o login de um usuário com base no email e senha fornecidos
+      parameters:
+      - description: Detalhes do usuário para login
+        in: body
+        name: userDTO
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usuário logado com sucesso
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "400":
+          description: Erro ao realizar login
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Realiza o login de um usuário
+      tags:
+      - Usuário
+  /users/name/{name}:
+    get:
+      description: Retorna uma lista de usuários com base no nome fornecido
       parameters:
       - description: Nome do usuário
         in: path
         name: name
         required: true
         type: string
+      - description: Token de autenticação do usuário
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Requisição realizada com sucesso.
+          description: OK
           schema:
-            type: string
-        "401":
-          description: Failed to load user
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Busca um usuário pelo nome.
-      tags:
-      - User
-  /user/login:
-    post:
-      description: Realiza o login do usuário.
-      operationId: LoginUser
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User logged successfully
-          schema:
-            $ref: '#/definitions/response.InfoResponse'
-        "401":
-          description: User is not authorized
+            items:
+              $ref: '#/definitions/response.User'
+            type: array
+        "400":
+          description: Erro ao obter usuários por nome
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - bearerAuth: []
-      summary: Realiza o login do usuário.
+      summary: Obtém usuários por nome
       tags:
-      - User
+      - Usuário
 swagger: "2.0"

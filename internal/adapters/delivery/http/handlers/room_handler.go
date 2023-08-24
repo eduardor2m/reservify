@@ -15,6 +15,16 @@ type RoomHandler struct {
 	service primary.RoomManager
 }
 
+// @Summary Cria uma nova sala
+// @Description Cria uma nova sala com os detalhes fornecidos
+// @Tags Sala
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Token de autenticação do usuário"
+// @Param roomDTO body request.RoomDTO true "Detalhes da sala a ser criada"
+// @Success 200 {object} response.InfoResponse "Sala criada com sucesso"
+// @Failure 400 {object} response.ErrorResponse "Erro de requisição inválida ou criação de sala falhou"
+// @Router /rooms [post]
 func (instance RoomHandler) CreateRoom(context echo.Context) error {
 	var roomDTO request.RoomDTO
 	token := context.Request().Header.Get("Authorization")
@@ -37,6 +47,14 @@ func (instance RoomHandler) CreateRoom(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room created successfully"})
 }
 
+
+// @Summary Lista todas as salas
+// @Description Retorna uma lista de todas as salas disponíveis
+// @Tags Sala
+// @Produce json
+// @Success 200 {array} response.Room
+// @Failure 400 {object} response.ErrorResponse "Erro ao listar salas"
+// @Router /rooms [get]
 func (instance RoomHandler) ListAllRooms(context echo.Context) error {
 	rooms, err := instance.service.ListAllRooms()
 
@@ -57,6 +75,14 @@ func (instance RoomHandler) ListAllRooms(context echo.Context) error {
 	return context.JSON(http.StatusOK, roomsResponse)
 }
 
+// @Summary Obtém detalhes de uma sala por ID
+// @Description Retorna os detalhes de uma sala com base no ID fornecido
+// @Tags Sala
+// @Produce json
+// @Param id path string true "ID da sala"
+// @Success 200 {object} response.Room
+// @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da sala"
+// @Router /rooms/{id} [get]
 func (instance RoomHandler) GetRoomByID(context echo.Context) error {
 	id := context.Param("id")
 
@@ -75,6 +101,14 @@ func (instance RoomHandler) GetRoomByID(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.NewRoom(*roomReceived))
 }
 
+// @Summary Obtém detalhes de uma sala por Código
+// @Description Retorna os detalhes de uma sala com base no código fornecido
+// @Tags Sala
+// @Produce json
+// @Param cod path string true "Código da sala"
+// @Success 200 {object} response.Room
+// @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da sala"
+// @Router /rooms/{cod} [get]
 func (instance RoomHandler) GetRoomByCod(context echo.Context) error {
 	cod := context.Param("cod")
 
@@ -86,6 +120,15 @@ func (instance RoomHandler) GetRoomByCod(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.NewRoom(*roomReceived))
 }
 
+// @Summary Deleta uma sala por ID
+// @Description Deleta uma sala com base no ID fornecido
+// @Tags Sala
+// @Param Authorization header string true "Token de autenticação do usuário"
+// @Param id path string true "ID da sala"
+// @Produce json
+// @Success 200 {object} response.InfoResponse "Sala deletada com sucesso"
+// @Failure 400 {object} response.ErrorResponse "Erro ao deletar sala"
+// @Router /rooms/{id} [delete]
 func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 	id := context.Param("id")
 	token := context.Request().Header.Get("Authorization")
@@ -103,6 +146,15 @@ func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room deleted successfully"})
 }
 
+// @Summary Adiciona uma imagem a uma sala por ID
+// @Description Adiciona uma imagem a uma sala com base no ID fornecido
+// @Tags Sala
+// @Param Authorization header string true "Token de autenticação do usuário"
+// @Param imageDTO body request.ImageDTO true "Detalhes da imagem a ser adicionada"
+// @Produce json
+// @Success 200 {object} response.InfoResponse "Imagem adicionada com sucesso"
+// @Failure 400 {object} response.ErrorResponse "Erro ao adicionar imagem à sala"
+// @Router /rooms/image [post]
 func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 	var imageDTO request.ImageDTO
 	token := context.Request().Header.Get("Authorization")
@@ -120,6 +172,14 @@ func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Image added successfully"})
 }
 
+// @Summary Obtém detalhes de uma sala com imagens por ID
+// @Description Retorna os detalhes de uma sala, incluindo suas imagens, com base no ID fornecido
+// @Tags Sala
+// @Produce json
+// @Param id path string true "ID da sala"
+// @Success 200 {object} response.Room
+// @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da sala com imagens"
+// @Router /rooms/{id}/images [get]
 func (instance RoomHandler) GetRoomWithImages(context echo.Context) error {
 	id := context.Param("id")
 

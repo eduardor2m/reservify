@@ -2,7 +2,6 @@
 APP_NAME = reservify
 MAIN_FILE = ./cmd/application/main.go
 DELIVERY_DIR = ./internal/adapters/delivery/docs
-HANDLER_DIR = ./internal/adapters/delivery/http/handlers
 
 # Commands
 GO = go
@@ -26,6 +25,4 @@ docs:
 clean:
 	rm -f $(APP_NAME)
 
-default:
-	docs
-	run
+default: docs run
