@@ -34,7 +34,7 @@ func (instance RoomHandler) CreateRoom(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	roomReceived, err := room.NewBuilder().WithCod(roomDTO.Cod).WithNumber(roomDTO.Number).WithVacancies(roomDTO.Vacancies).WithPrice(roomDTO.Price).Build()
+	roomReceived, err := room.NewBuilder().WithCod(roomDTO.Cod).WithName(roomDTO.Name).WithDescription(roomDTO.Description).WithNumber(roomDTO.Number).WithVacancies(roomDTO.Vacancies).WithPrice(roomDTO.Price).Build()
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
@@ -163,7 +163,7 @@ func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
 
-	err = instance.service.AddImageToRoomByRoomID(imageDTO.IdUser, imageDTO.ImageUrl, token)
+	err = instance.service.AddImageToRoomByRoomID(imageDTO.IdUser, imageDTO.ImageUrl, imageDTO.Thumbnail, token)
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}

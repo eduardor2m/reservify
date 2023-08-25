@@ -14,22 +14,26 @@ import (
 
 const createRoom = `-- name: CreateRoom :exec
 
-INSERT INTO room (id, cod, number, vacancies, price, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO room (id, name, description, cod, number, vacancies, price, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 `
 
 type CreateRoomParams struct {
-	ID        uuid.UUID
-	Cod       string
-	Number    int32
-	Vacancies int32
-	Price     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uuid.UUID
+	Name        string
+	Description string
+	Cod         string
+	Number      int32
+	Vacancies   int32
+	Price       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) error {
 	_, err := q.db.ExecContext(ctx, createRoom,
 		arg.ID,
+		arg.Name,
+		arg.Description,
 		arg.Cod,
 		arg.Number,
 		arg.Vacancies,
@@ -52,14 +56,28 @@ func (q *Queries) DeleteRoomById(ctx context.Context, id uuid.UUID) error {
 
 const findRoomByCod = `-- name: FindRoomByCod :one
 
-SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room WHERE cod = $1
+SELECT id, name, description, cod, number, vacancies, price, created_at, updated_at FROM room WHERE cod = $1
 `
 
-func (q *Queries) FindRoomByCod(ctx context.Context, cod string) (Room, error) {
+type FindRoomByCodRow struct {
+	ID          uuid.UUID
+	Name        string
+	Description string
+	Cod         string
+	Number      int32
+	Vacancies   int32
+	Price       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+func (q *Queries) FindRoomByCod(ctx context.Context, cod string) (FindRoomByCodRow, error) {
 	row := q.db.QueryRowContext(ctx, findRoomByCod, cod)
-	var i Room
+	var i FindRoomByCodRow
 	err := row.Scan(
 		&i.ID,
+		&i.Name,
+		&i.Description,
 		&i.Cod,
 		&i.Number,
 		&i.Vacancies,
@@ -72,14 +90,28 @@ func (q *Queries) FindRoomByCod(ctx context.Context, cod string) (Room, error) {
 
 const findRoomById = `-- name: FindRoomById :one
 
-SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room WHERE id = $1
+SELECT id, name, description, cod, number, vacancies, price, created_at, updated_at FROM room WHERE id = $1
 `
 
-func (q *Queries) FindRoomById(ctx context.Context, id uuid.UUID) (Room, error) {
+type FindRoomByIdRow struct {
+	ID          uuid.UUID
+	Name        string
+	Description string
+	Cod         string
+	Number      int32
+	Vacancies   int32
+	Price       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+func (q *Queries) FindRoomById(ctx context.Context, id uuid.UUID) (FindRoomByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, findRoomById, id)
-	var i Room
+	var i FindRoomByIdRow
 	err := row.Scan(
 		&i.ID,
+		&i.Name,
+		&i.Description,
 		&i.Cod,
 		&i.Number,
 		&i.Vacancies,
@@ -92,20 +124,34 @@ func (q *Queries) FindRoomById(ctx context.Context, id uuid.UUID) (Room, error) 
 
 const listAllRooms = `-- name: ListAllRooms :many
 
-SELECT id, cod, number, vacancies, price, created_at, updated_at FROM room ORDER BY created_at DESC
+SELECT id, name, description, cod, number, vacancies, price, created_at, updated_at FROM room ORDER BY created_at DESC
 `
 
-func (q *Queries) ListAllRooms(ctx context.Context) ([]Room, error) {
+type ListAllRoomsRow struct {
+	ID          uuid.UUID
+	Name        string
+	Description string
+	Cod         string
+	Number      int32
+	Vacancies   int32
+	Price       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+func (q *Queries) ListAllRooms(ctx context.Context) ([]ListAllRoomsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listAllRooms)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Room
+	var items []ListAllRoomsRow
 	for rows.Next() {
-		var i Room
+		var i ListAllRoomsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Name,
+			&i.Description,
 			&i.Cod,
 			&i.Number,
 			&i.Vacancies,

@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS "image" (
     id_room UUID NOT NULL,
     image_url TEXT PRIMARY KEY,
+    thumbnail BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_room) REFERENCES room(id) ON DELETE CASCADE
 );

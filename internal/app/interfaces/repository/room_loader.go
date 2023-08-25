@@ -9,7 +9,7 @@ import (
 type RoomLoader interface {
 	CreateRoom(room room.Room, tokenJwt string) error
 	ListAllRooms() ([]room.Room, error)
-	AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, tokenJwt string) error
+	AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, imageThumbnail bool, tokenJwt string) error
 	GetRoomWithImagesByRoomID(id uuid.UUID) (*room.Room, error)
 	GetRoomByID(id uuid.UUID) (*room.Room, error)
 	GetRoomByCod(cod string) (*room.Room, error)

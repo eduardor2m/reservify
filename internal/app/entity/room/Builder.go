@@ -2,8 +2,9 @@ package room
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Builder struct {
@@ -22,6 +23,16 @@ func (instance *Builder) WithID(id uuid.UUID) *Builder {
 	}
 
 	instance.Room.id = id
+	return instance
+}
+
+func (instance *Builder) WithName(name string) *Builder {
+	instance.Room.name = name
+	return instance
+}
+
+func (instance *Builder) WithDescription(description string) *Builder {
+	instance.Room.description = description
 	return instance
 }
 

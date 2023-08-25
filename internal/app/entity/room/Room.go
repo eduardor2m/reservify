@@ -8,14 +8,16 @@ import (
 )
 
 type Room struct {
-	id        uuid.UUID
-	cod       string
-	number    int
-	vacancies int
-	price     float64
-	createdAt time.Time
-	updatedAt time.Time
-	Image []image.Image
+	id          uuid.UUID
+	name        string
+	description string
+	cod         string
+	number      int
+	vacancies   int
+	price       float64
+	createdAt   time.Time
+	updatedAt   time.Time
+	Image       []image.Image
 }
 
 func (instance *Room) ID() uuid.UUID {
@@ -24,6 +26,14 @@ func (instance *Room) ID() uuid.UUID {
 	}
 
 	return instance.id
+}
+
+func (instance *Room) Name() string {
+	return instance.name
+}
+
+func (instance *Room) Description() string {
+	return instance.description
 }
 
 func (instance *Room) Cod() string {

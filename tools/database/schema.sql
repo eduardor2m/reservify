@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS "user" (
 CREATE TABLE IF NOT EXISTS room (
     id UUID PRIMARY KEY,
     cod VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     number INTEGER NOT NULL,
     vacancies INTEGER NOT NULL,
     price DECIMAL(10,2) NOT NULL,
@@ -36,5 +38,6 @@ CREATE TABLE IF NOT EXISTS "reservation" (
 CREATE TABLE IF NOT EXISTS "image" (
     id_room UUID NOT NULL,
     image_url TEXT PRIMARY KEY,
+    thumbnail BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (id_room) REFERENCES room(id)
 );

@@ -5,8 +5,8 @@ import (
 )
 
 type Builder struct {
-	Image 		 Image
-	Err         error
+	Image Image
+	Err   error
 }
 
 func NewBuilder() *Builder {
@@ -20,6 +20,11 @@ func (instance *Builder) WithIDRoom(idRoom uuid.UUID) *Builder {
 
 func (instance *Builder) WithImageUrl(imageUrl string) *Builder {
 	instance.Image.imageUrl = imageUrl
+	return instance
+}
+
+func (instance *Builder) WithThumbnail(thumbnail bool) *Builder {
+	instance.Image.thumbnail = thumbnail
 	return instance
 }
 

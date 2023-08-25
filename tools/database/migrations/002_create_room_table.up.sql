@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS room (
     id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     cod VARCHAR(255) NOT NULL UNIQUE,
     number INTEGER NOT NULL,
     vacancies INTEGER NOT NULL,
