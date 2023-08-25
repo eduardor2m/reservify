@@ -10,7 +10,10 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "Eduardo Melo",
+            "email": "deveduardomelo@gmail.com"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -610,8 +613,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/user": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna uma lista de todos os usuários registrados",
                 "produces": [
                     "application/json"
@@ -620,15 +628,6 @@ const docTemplate = `{
                     "Usuário"
                 ],
                 "summary": "Lista todos os usuários",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -683,7 +682,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/admin/{id_user}": {
+        "/user/admin/{id_user}": {
             "put": {
                 "description": "Atualiza o status de administrador de um usuário com base no ID fornecido",
                 "produces": [
@@ -725,7 +724,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/email/{email}": {
+        "/user/email/{email}": {
             "delete": {
                 "description": "Deleta um usuário com base no email fornecido",
                 "produces": [
@@ -767,7 +766,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/login": {
+        "/user/login": {
             "post": {
                 "description": "Realiza o login de um usuário com base no email e senha fornecidos",
                 "produces": [
@@ -804,7 +803,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/name/{name}": {
+        "/user/name/{name}": {
             "get": {
                 "description": "Retorna uma lista de usuários com base no nome fornecido",
                 "produces": [
@@ -849,7 +848,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{email}": {
+        "/user/{email}": {
             "put": {
                 "description": "Atualiza informações de um usuário com base no email fornecido",
                 "produces": [
@@ -885,7 +884,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{id}": {
+        "/user/{id}": {
             "get": {
                 "description": "Retorna os detalhes de um usuário com base no ID fornecido",
                 "produces": [
@@ -1128,17 +1127,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Reservify API",
+	Description:      "Reserva de quartos para Hotéis",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -1,8 +1,15 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Reserva de quartos para Hotéis",
+        "title": "Reservify API",
+        "contact": {
+            "name": "Eduardo Melo",
+            "email": "deveduardomelo@gmail.com"
+        },
+        "version": "1.0"
     },
+    "basePath": "/api",
     "paths": {
         "/reservations": {
             "get": {
@@ -598,8 +605,13 @@
                 }
             }
         },
-        "/users": {
+        "/user": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna uma lista de todos os usuários registrados",
                 "produces": [
                     "application/json"
@@ -608,15 +620,6 @@
                     "Usuário"
                 ],
                 "summary": "Lista todos os usuários",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -671,7 +674,7 @@
                 }
             }
         },
-        "/users/admin/{id_user}": {
+        "/user/admin/{id_user}": {
             "put": {
                 "description": "Atualiza o status de administrador de um usuário com base no ID fornecido",
                 "produces": [
@@ -713,7 +716,7 @@
                 }
             }
         },
-        "/users/email/{email}": {
+        "/user/email/{email}": {
             "delete": {
                 "description": "Deleta um usuário com base no email fornecido",
                 "produces": [
@@ -755,7 +758,7 @@
                 }
             }
         },
-        "/users/login": {
+        "/user/login": {
             "post": {
                 "description": "Realiza o login de um usuário com base no email e senha fornecidos",
                 "produces": [
@@ -792,7 +795,7 @@
                 }
             }
         },
-        "/users/name/{name}": {
+        "/user/name/{name}": {
             "get": {
                 "description": "Retorna uma lista de usuários com base no nome fornecido",
                 "produces": [
@@ -837,7 +840,7 @@
                 }
             }
         },
-        "/users/{email}": {
+        "/user/{email}": {
             "put": {
                 "description": "Atualiza informações de um usuário com base no email fornecido",
                 "produces": [
@@ -873,7 +876,7 @@
                 }
             }
         },
-        "/users/{id}": {
+        "/user/{id}": {
             "get": {
                 "description": "Retorna os detalhes de um usuário com base no ID fornecido",
                 "produces": [
@@ -1115,6 +1118,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

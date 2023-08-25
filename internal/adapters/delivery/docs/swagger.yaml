@@ -1,3 +1,4 @@
+basePath: /api
 definitions:
   request.ImageDTO:
     properties:
@@ -133,7 +134,12 @@ definitions:
         type: string
     type: object
 info:
-  contact: {}
+  contact:
+    email: deveduardomelo@gmail.com
+    name: Eduardo Melo
+  description: Reserva de quartos para Hotéis
+  title: Reservify API
+  version: "1.0"
 paths:
   /reservations:
     get:
@@ -532,15 +538,9 @@ paths:
       summary: Adiciona uma imagem a uma sala por ID
       tags:
       - Sala
-  /users:
+  /user:
     get:
       description: Retorna uma lista de todos os usuários registrados
-      parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -554,6 +554,8 @@ paths:
           description: Erro ao listar usuários
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Lista todos os usuários
       tags:
       - Usuário
@@ -580,7 +582,7 @@ paths:
       summary: Cria um novo usuário
       tags:
       - Usuário
-  /users/{email}:
+  /user/{email}:
     put:
       description: Atualiza informações de um usuário com base no email fornecido
       parameters:
@@ -604,7 +606,7 @@ paths:
       summary: Atualiza um usuário por email
       tags:
       - Usuário
-  /users/{id}:
+  /user/{id}:
     get:
       description: Retorna os detalhes de um usuário com base no ID fornecido
       parameters:
@@ -632,7 +634,7 @@ paths:
       summary: Obtém detalhes de um usuário por ID
       tags:
       - Usuário
-  /users/admin/{id_user}:
+  /user/admin/{id_user}:
     put:
       description: Atualiza o status de administrador de um usuário com base no ID
         fornecido
@@ -661,7 +663,7 @@ paths:
       summary: Atualiza o status de administrador de um usuário por ID
       tags:
       - Usuário
-  /users/email/{email}:
+  /user/email/{email}:
     delete:
       description: Deleta um usuário com base no email fornecido
       parameters:
@@ -689,7 +691,7 @@ paths:
       summary: Deleta um usuário por email
       tags:
       - Usuário
-  /users/login:
+  /user/login:
     post:
       description: Realiza o login de um usuário com base no email e senha fornecidos
       parameters:
@@ -713,7 +715,7 @@ paths:
       summary: Realiza o login de um usuário
       tags:
       - Usuário
-  /users/name/{name}:
+  /user/name/{name}:
     get:
       description: Retorna uma lista de usuários com base no nome fornecido
       parameters:
@@ -743,4 +745,9 @@ paths:
       summary: Obtém usuários por nome
       tags:
       - Usuário
+securityDefinitions:
+  bearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

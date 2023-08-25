@@ -34,7 +34,6 @@ type api struct {
 // @securityDefinitions.apikey bearerAuth
 // @in header
 // @name Authorization
-
 func NewAPI(options *Options) API {
 	echoInstance := echo.New()
 
