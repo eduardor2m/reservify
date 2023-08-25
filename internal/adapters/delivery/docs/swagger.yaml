@@ -141,15 +141,9 @@ info:
   title: Reservify API
   version: "1.0"
 paths:
-  /reservations:
+  /reservation:
     get:
       description: Retorna uma lista de todas as reservas de salas
-      parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -163,17 +157,14 @@ paths:
           description: Erro ao listar reservas de salas
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Lista todas as reservas de salas
       tags:
       - Reserva
     post:
       description: Cria uma nova reserva de sala com base nos detalhes fornecidos
       parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Detalhes da reserva a ser criada
         in: body
         name: reservationDTO
@@ -191,21 +182,18 @@ paths:
           description: Erro ao criar reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Cria uma nova reserva de sala
       tags:
       - Reserva
-  /reservations/{id}:
+  /reservation/{id}:
     delete:
       description: Deleta uma reserva de sala com base no ID fornecido
       parameters:
       - description: ID da reserva
         in: path
         name: id
-        required: true
-        type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
         required: true
         type: string
       produces:
@@ -219,6 +207,8 @@ paths:
           description: Erro ao deletar reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Deleta uma reserva de sala por ID
       tags:
       - Reserva
@@ -228,11 +218,6 @@ paths:
       - description: ID da reserva
         in: path
         name: id
-        required: true
-        type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
         required: true
         type: string
       produces:
@@ -246,19 +231,16 @@ paths:
           description: Erro ao obter detalhes da reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Obtém detalhes de uma reserva de sala por ID
       tags:
       - Reserva
-  /reservations/my:
+  /reservation/my:
     post:
       description: Cria uma nova reserva de sala com base nos detalhes fornecidos
         pelo usuário autenticado
       parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Detalhes da reserva a ser criada
         in: body
         name: reservationDTO
@@ -276,10 +258,12 @@ paths:
           description: Erro ao criar reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Cria uma nova reserva de sala para o usuário autenticado
       tags:
       - Reserva
-  /reservations/my/{id}:
+  /reservation/my/{id}:
     delete:
       description: Deleta uma reserva de sala do usuário autenticado com base no ID
         fornecido
@@ -287,11 +271,6 @@ paths:
       - description: ID da reserva
         in: path
         name: id
-        required: true
-        type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
         required: true
         type: string
       produces:
@@ -305,21 +284,18 @@ paths:
           description: Erro ao deletar reserva de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Deleta uma reserva de sala do usuário autenticado por ID
       tags:
       - Reserva
-  /reservations/room/{id_room}:
+  /reservation/room/{id_room}:
     get:
       description: Retorna as reservas de salas com base no ID da sala fornecido
       parameters:
       - description: ID da sala
         in: path
         name: id_room
-        required: true
-        type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
         required: true
         type: string
       produces:
@@ -335,10 +311,12 @@ paths:
           description: Erro ao obter reservas de salas por ID de sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Obtém as reservas de salas por ID de sala
       tags:
       - Reserva
-  /reservations/user/{id_user}:
+  /reservation/user/{id_user}:
     get:
       description: Retorna as reservas de salas com base no ID do usuário fornecido
       parameters:
@@ -363,7 +341,7 @@ paths:
       summary: Obtém as reservas de salas por ID de usuário
       tags:
       - Reserva
-  /rooms:
+  /room:
     get:
       description: Retorna uma lista de todas as salas disponíveis
       produces:
@@ -387,11 +365,6 @@ paths:
       - application/json
       description: Cria uma nova sala com os detalhes fornecidos
       parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Detalhes da sala a ser criada
         in: body
         name: roomDTO
@@ -409,10 +382,12 @@ paths:
           description: Erro de requisição inválida ou criação de sala falhou
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Cria uma nova sala
       tags:
       - Sala
-  /rooms/{cod}:
+  /room/{cod}:
     get:
       description: Retorna os detalhes de uma sala com base no código fornecido
       parameters:
@@ -435,15 +410,10 @@ paths:
       summary: Obtém detalhes de uma sala por Código
       tags:
       - Sala
-  /rooms/{id}:
+  /room/{id}:
     delete:
       description: Deleta uma sala com base no ID fornecido
       parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: ID da sala
         in: path
         name: id
@@ -460,6 +430,8 @@ paths:
           description: Erro ao deletar sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Deleta uma sala por ID
       tags:
       - Sala
@@ -485,7 +457,7 @@ paths:
       summary: Obtém detalhes de uma sala por ID
       tags:
       - Sala
-  /rooms/{id}/images:
+  /room/{id}/images:
     get:
       description: Retorna os detalhes de uma sala, incluindo suas imagens, com base
         no ID fornecido
@@ -509,15 +481,10 @@ paths:
       summary: Obtém detalhes de uma sala com imagens por ID
       tags:
       - Sala
-  /rooms/image:
+  /room/image:
     post:
       description: Adiciona uma imagem a uma sala com base no ID fornecido
       parameters:
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Detalhes da imagem a ser adicionada
         in: body
         name: imageDTO
@@ -535,6 +502,8 @@ paths:
           description: Erro ao adicionar imagem à sala
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Adiciona uma imagem a uma sala por ID
       tags:
       - Sala
@@ -591,11 +560,6 @@ paths:
         name: email
         required: true
         type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -603,6 +567,8 @@ paths:
           description: Atualização de usuário não implementada ainda
           schema:
             $ref: '#/definitions/response.InfoResponse'
+      security:
+      - bearerAuth: []
       summary: Atualiza um usuário por email
       tags:
       - Usuário
@@ -613,11 +579,6 @@ paths:
       - description: ID do usuário
         in: path
         name: id
-        required: true
-        type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
         required: true
         type: string
       produces:
@@ -631,6 +592,9 @@ paths:
           description: Erro ao obter detalhes do usuário
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      - bearerAuth: []
       summary: Obtém detalhes de um usuário por ID
       tags:
       - Usuário
@@ -644,11 +608,6 @@ paths:
         name: id_user
         required: true
         type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -660,6 +619,8 @@ paths:
           description: Erro ao atualizar status de administrador do usuário
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Atualiza o status de administrador de um usuário por ID
       tags:
       - Usuário
@@ -670,11 +631,6 @@ paths:
       - description: Email do usuário
         in: path
         name: email
-        required: true
-        type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
         required: true
         type: string
       produces:
@@ -688,6 +644,8 @@ paths:
           description: Erro ao deletar usuário
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
       summary: Deleta um usuário por email
       tags:
       - Usuário
@@ -724,11 +682,6 @@ paths:
         name: name
         required: true
         type: string
-      - description: Token de autenticação do usuário
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -742,6 +695,9 @@ paths:
           description: Erro ao obter usuários por nome
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - bearerAuth: []
+      - bearerAuth: []
       summary: Obtém usuários por nome
       tags:
       - Usuário

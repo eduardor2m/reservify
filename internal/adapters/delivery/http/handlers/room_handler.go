@@ -20,11 +20,11 @@ type RoomHandler struct {
 // @Tags Sala
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Param roomDTO body request.RoomDTO true "Detalhes da sala a ser criada"
 // @Success 200 {object} response.InfoResponse "Sala criada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro de requisição inválida ou criação de sala falhou"
-// @Router /rooms [post]
+// @Router /room [post]
 func (instance RoomHandler) CreateRoom(context echo.Context) error {
 	var roomDTO request.RoomDTO
 	token := context.Request().Header.Get("Authorization")
@@ -47,14 +47,13 @@ func (instance RoomHandler) CreateRoom(context echo.Context) error {
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "Room created successfully"})
 }
 
-
 // @Summary Lista todas as salas
 // @Description Retorna uma lista de todas as salas disponíveis
 // @Tags Sala
 // @Produce json
 // @Success 200 {array} response.Room
 // @Failure 400 {object} response.ErrorResponse "Erro ao listar salas"
-// @Router /rooms [get]
+// @Router /room [get]
 func (instance RoomHandler) ListAllRooms(context echo.Context) error {
 	rooms, err := instance.service.ListAllRooms()
 
@@ -82,7 +81,7 @@ func (instance RoomHandler) ListAllRooms(context echo.Context) error {
 // @Param id path string true "ID da sala"
 // @Success 200 {object} response.Room
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da sala"
-// @Router /rooms/{id} [get]
+// @Router /room/{id} [get]
 func (instance RoomHandler) GetRoomByID(context echo.Context) error {
 	id := context.Param("id")
 
@@ -108,7 +107,7 @@ func (instance RoomHandler) GetRoomByID(context echo.Context) error {
 // @Param cod path string true "Código da sala"
 // @Success 200 {object} response.Room
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da sala"
-// @Router /rooms/{cod} [get]
+// @Router /room/{cod} [get]
 func (instance RoomHandler) GetRoomByCod(context echo.Context) error {
 	cod := context.Param("cod")
 
@@ -123,12 +122,12 @@ func (instance RoomHandler) GetRoomByCod(context echo.Context) error {
 // @Summary Deleta uma sala por ID
 // @Description Deleta uma sala com base no ID fornecido
 // @Tags Sala
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Param id path string true "ID da sala"
 // @Produce json
 // @Success 200 {object} response.InfoResponse "Sala deletada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao deletar sala"
-// @Router /rooms/{id} [delete]
+// @Router /room/{id} [delete]
 func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 	id := context.Param("id")
 	token := context.Request().Header.Get("Authorization")
@@ -149,12 +148,12 @@ func (instance RoomHandler) DeleteRoomByID(context echo.Context) error {
 // @Summary Adiciona uma imagem a uma sala por ID
 // @Description Adiciona uma imagem a uma sala com base no ID fornecido
 // @Tags Sala
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Param imageDTO body request.ImageDTO true "Detalhes da imagem a ser adicionada"
 // @Produce json
 // @Success 200 {object} response.InfoResponse "Imagem adicionada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao adicionar imagem à sala"
-// @Router /rooms/image [post]
+// @Router /room/image [post]
 func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 	var imageDTO request.ImageDTO
 	token := context.Request().Header.Get("Authorization")
@@ -179,7 +178,7 @@ func (instance RoomHandler) AddImageToRoomById(context echo.Context) error {
 // @Param id path string true "ID da sala"
 // @Success 200 {object} response.Room
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da sala com imagens"
-// @Router /rooms/{id}/images [get]
+// @Router /room/{id}/images [get]
 func (instance RoomHandler) GetRoomWithImages(context echo.Context) error {
 	id := context.Param("id")
 

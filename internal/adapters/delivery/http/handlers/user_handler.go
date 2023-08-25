@@ -75,7 +75,7 @@ func (instance UserHandler) LoginUser(context echo.Context) error {
 // @Description Retorna uma lista de todos os usuários registrados
 // @Tags Usuário
 // @Produce json
-// @Security bearerAuth 
+// @Security bearerAuth
 // @Success 200 {array} response.User
 // @Failure 400 {object} response.ErrorResponse "Erro ao listar usuários"
 // @Router /user [get]
@@ -105,8 +105,9 @@ func (instance UserHandler) ListAllUsers(context echo.Context) error {
 // @Description Retorna os detalhes de um usuário com base no ID fornecido
 // @Tags Usuário
 // @Produce json
+// @Security bearerAuth
 // @Param id path string true "ID do usuário"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {object} response.User
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes do usuário"
 // @Router /user/{id} [get]
@@ -134,8 +135,9 @@ func (instance UserHandler) GetUserByID(context echo.Context) error {
 // @Description Retorna uma lista de usuários com base no nome fornecido
 // @Tags Usuário
 // @Produce json
+// @Security bearerAuth
 // @Param name path string true "Nome do usuário"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {array} response.User
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter usuários por nome"
 // @Router /user/name/{name} [get]
@@ -168,7 +170,7 @@ func (instance UserHandler) GetUsersByName(context echo.Context) error {
 // @Tags Usuário
 // @Produce json
 // @Param email path string true "Email do usuário"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 423 {object} response.InfoResponse "Atualização de usuário não implementada ainda"
 // @Router /user/{email} [put]
 func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
@@ -180,7 +182,7 @@ func (instance UserHandler) UpdateUserByEmail(context echo.Context) error {
 // @Tags Usuário
 // @Produce json
 // @Param id_user path string true "ID do usuário"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {object} response.InfoResponse "Campo admin do usuário foi atualizado"
 // @Failure 400 {object} response.ErrorResponse "Erro ao atualizar status de administrador do usuário"
 // @Router /user/admin/{id_user} [put]
@@ -199,7 +201,7 @@ func (instance UserHandler) UpdateAdminByUserID(context echo.Context) error {
 	if err != nil {
 		return context.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 	}
-	
+
 	return context.JSON(http.StatusOK, response.InfoResponse{Message: "campo admin do usuario foi atualizado"})
 }
 
@@ -208,7 +210,7 @@ func (instance UserHandler) UpdateAdminByUserID(context echo.Context) error {
 // @Tags Usuário
 // @Produce json
 // @Param email path string true "Email do usuário"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {object} response.InfoResponse "Usuário deletado com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao deletar usuário"
 // @Router /user/email/{email} [delete]

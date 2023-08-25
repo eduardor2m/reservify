@@ -19,11 +19,11 @@ type ReservationHandler struct {
 // @Description Cria uma nova reserva de sala com base nos detalhes fornecidos
 // @Tags Reserva
 // @Produce json
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Param reservationDTO body request.ReservationDTO true "Detalhes da reserva a ser criada"
 // @Success 200 {object} response.InfoResponse "Reserva de sala realizada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao criar reserva de sala"
-// @Router /reservations [post]
+// @Router /reservation [post]
 func (instance ReservationHandler) CreateReservation(context echo.Context) error {
 	var reservationDTO request.ReservationDTO
 	token := context.Request().Header.Get("Authorization")
@@ -53,11 +53,11 @@ func (instance ReservationHandler) CreateReservation(context echo.Context) error
 // @Description Cria uma nova reserva de sala com base nos detalhes fornecidos pelo usuário autenticado
 // @Tags Reserva
 // @Produce json
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Param reservationDTO body request.ReservationDTO true "Detalhes da reserva a ser criada"
 // @Success 200 {object} response.InfoResponse "Reserva de sala realizada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao criar reserva de sala"
-// @Router /reservations/my [post]
+// @Router /reservation/my [post]
 func (instance ReservationHandler) CreateMyReservation(context echo.Context) error {
 	var reservationDTO request.ReservationDTO
 	token := context.Request().Header.Get("Authorization")
@@ -87,10 +87,10 @@ func (instance ReservationHandler) CreateMyReservation(context echo.Context) err
 // @Description Retorna uma lista de todas as reservas de salas
 // @Tags Reserva
 // @Produce json
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {array} response.Reservation
 // @Failure 400 {object} response.ErrorResponse "Erro ao listar reservas de salas"
-// @Router /reservations [get]
+// @Router /reservation [get]
 func (instance ReservationHandler) ListAllReservations(context echo.Context) error {
 	token := context.Request().Header.Get("Authorization")
 
@@ -118,10 +118,10 @@ func (instance ReservationHandler) ListAllReservations(context echo.Context) err
 // @Tags Reserva
 // @Produce json
 // @Param id path string true "ID da reserva"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {object} response.Reservation
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter detalhes da reserva de sala"
-// @Router /reservations/{id} [get]
+// @Router /reservation/{id} [get]
 func (instance ReservationHandler) GetReservationByID(context echo.Context) error {
 	id := context.Param("id")
 	token := context.Request().Header.Get("Authorization")
@@ -146,10 +146,10 @@ func (instance ReservationHandler) GetReservationByID(context echo.Context) erro
 // @Tags Reserva
 // @Produce json
 // @Param id_room path string true "ID da sala"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {array} response.Reservation
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter reservas de salas por ID de sala"
-// @Router /reservations/room/{id_room} [get]
+// @Router /reservation/room/{id_room} [get]
 func (instance ReservationHandler) GetReservationsByRoomID(context echo.Context) error {
 	id := context.Param("id_room")
 	token := context.Request().Header.Get("Authorization")
@@ -186,7 +186,7 @@ func (instance ReservationHandler) GetReservationsByRoomID(context echo.Context)
 // @Param id_user path string true "ID do usuário"
 // @Success 200 {array} response.Reservation
 // @Failure 400 {object} response.ErrorResponse "Erro ao obter reservas de salas por ID de usuário"
-// @Router /reservations/user/{id_user} [get]
+// @Router /reservation/user/{id_user} [get]
 func (instance ReservationHandler) GetReservationsByUserID(context echo.Context) error {
 	id := context.Param("id_user")
 
@@ -221,10 +221,10 @@ func (instance ReservationHandler) GetReservationsByUserID(context echo.Context)
 // @Tags Reserva
 // @Produce json
 // @Param id path string true "ID da reserva"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {object} response.InfoResponse "Reserva de sala deletada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao deletar reserva de sala"
-// @Router /reservations/{id} [delete]
+// @Router /reservation/{id} [delete]
 func (instance ReservationHandler) DeleteReservationByID(context echo.Context) error {
 	id := context.Param("id")
 	token := context.Request().Header.Get("Authorization")
@@ -250,10 +250,10 @@ func (instance ReservationHandler) DeleteReservationByID(context echo.Context) e
 // @Tags Reserva
 // @Produce json
 // @Param id path string true "ID da reserva"
-// @Param Authorization header string true "Token de autenticação do usuário"
+// @Security bearerAuth
 // @Success 200 {object} response.InfoResponse "Reserva de sala deletada com sucesso"
 // @Failure 400 {object} response.ErrorResponse "Erro ao deletar reserva de sala"
-// @Router /reservations/my/{id} [delete]
+// @Router /reservation/my/{id} [delete]
 func (instance ReservationHandler) DeleteMyReservationByID(context echo.Context) error {
 	id := context.Param("id")
 	token := context.Request().Header.Get("Authorization")
