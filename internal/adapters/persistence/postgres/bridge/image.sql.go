@@ -13,22 +13,23 @@ import (
 
 const addImageToRoomByRoomID = `-- name: AddImageToRoomByRoomID :exec
 
-INSERT INTO image (id_room, image_url) VALUES ($1,$2)
+INSERT INTO image (id_room, image_url, thumbnail) VALUES ($1,$2,$3)
 `
 
 type AddImageToRoomByRoomIDParams struct {
-	IDRoom   uuid.UUID
-	ImageUrl string
+	IDRoom    uuid.UUID
+	ImageUrl  string
+	Thumbnail bool
 }
 
 func (q *Queries) AddImageToRoomByRoomID(ctx context.Context, arg AddImageToRoomByRoomIDParams) error {
-	_, err := q.db.ExecContext(ctx, addImageToRoomByRoomID, arg.IDRoom, arg.ImageUrl)
+	_, err := q.db.ExecContext(ctx, addImageToRoomByRoomID, arg.IDRoom, arg.ImageUrl, arg.Thumbnail)
 	return err
 }
 
 const listImagesByRoomID = `-- name: ListImagesByRoomID :many
 
-SELECT id_room, image_url FROM image WHERE id_room = $1
+SELECT id_room, image_url, thumbnail FROM image WHERE id_room = $1
 `
 
 func (q *Queries) ListImagesByRoomID(ctx context.Context, idRoom uuid.UUID) ([]Image, error) {
@@ -40,7 +41,7 @@ func (q *Queries) ListImagesByRoomID(ctx context.Context, idRoom uuid.UUID) ([]I
 	var items []Image
 	for rows.Next() {
 		var i Image
-		if err := rows.Scan(&i.IDRoom, &i.ImageUrl); err != nil {
+		if err := rows.Scan(&i.IDRoom, &i.ImageUrl, &i.Thumbnail); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -7,8 +7,9 @@ import (
 )
 
 type Image struct {
-	IdUser   uuid.UUID `json:"id_room"`
-	ImageUrl string    `json:"image_url"`
+	IdUser    uuid.UUID `json:"id_room"`
+	ImageUrl  string    `json:"image_url"`
+	Thumbnail bool      `json:"thumbnail"`
 }
 
 func NewImage(image []image.Image) *[]Image {
@@ -19,8 +20,9 @@ func NewImage(image []image.Image) *[]Image {
 	var images []Image
 	for _, image := range image {
 		images = append(images, Image{
-			IdUser:   image.IDRoom(),
-			ImageUrl: image.ImageUrl(),
+			IdUser:    image.IDRoom(),
+			ImageUrl:  image.ImageUrl(),
+			Thumbnail: image.Thumbnail(),
 		})
 	}
 	return &images

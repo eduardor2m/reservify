@@ -38,13 +38,15 @@ func (instance RoomPostgresRepository) CreateRoom(u room.Room, tokenJwt string) 
 	}
 
 	err = queries.CreateRoom(ctx, bridge.CreateRoomParams{
-		ID:        u.ID(),
-		Cod:       u.Cod(),
-		Number:    int32(u.Number()),
-		Vacancies: int32(u.Vacancies()),
-		Price:     converters.FloatToString(u.Price()),
-		CreatedAt: u.CreatedAt(),
-		UpdatedAt: u.UpdatedAt(),
+		ID:          u.ID(),
+		Name:        u.Name(),
+		Description: u.Description(),
+		Cod:         u.Cod(),
+		Number:      int32(u.Number()),
+		Vacancies:   int32(u.Vacancies()),
+		Price:       converters.FloatToString(u.Price()),
+		CreatedAt:   u.CreatedAt(),
+		UpdatedAt:   u.UpdatedAt(),
 	})
 
 	if err != nil {
@@ -82,7 +84,7 @@ func (instance RoomPostgresRepository) ListAllRooms() ([]room.Room, error) {
 			return nil, fmt.Errorf("falha ao converter preço do quarto: %v", err)
 		}
 
-		roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
+		roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithName(roomDB.Name).WithDescription(roomDB.Description).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
 
 		if err != nil {
 			return nil, fmt.Errorf("falha ao construir quarto: %v", err)
@@ -119,7 +121,7 @@ func (instance RoomPostgresRepository) GetRoomByID(id uuid.UUID) (*room.Room, er
 		return nil, fmt.Errorf("falha ao converter preço do quarto: %v", err)
 	}
 
-	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
+	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithName(roomDB.Name).WithDescription(roomDB.Description).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao construir quarto: %v", err)
@@ -153,7 +155,7 @@ func (instance RoomPostgresRepository) GetRoomByCod(cod string) (*room.Room, err
 		return nil, fmt.Errorf("falha ao converter preço do quarto: %v", err)
 	}
 
-	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
+	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithName(roomDB.Name).WithDescription(roomDB.Description).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao construir quarto: %v", err)
@@ -191,7 +193,7 @@ func (instance RoomPostgresRepository) DeleteRoomByID(id uuid.UUID, tokenJwt str
 	return nil
 }
 
-func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, tokenJwt string) error {
+func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, imageThumbnail bool, tokenJwt string) error {
 	conn, err := instance.getConnection()
 
 	if err != nil {
@@ -212,8 +214,9 @@ func (instance RoomPostgresRepository) AddImageToRoomByRoomID(id uuid.UUID, imag
 
 	err = queries.AddImageToRoomByRoomID(ctx,
 		bridge.AddImageToRoomByRoomIDParams{
-			IDRoom:   id,
-			ImageUrl: imageUrl,
+			IDRoom:    id,
+			ImageUrl:  imageUrl,
+			Thumbnail: imageThumbnail,
 		},
 	)
 
@@ -255,7 +258,7 @@ func (instance RoomPostgresRepository) GetRoomWithImagesByRoomID(id uuid.UUID) (
 		return nil, fmt.Errorf("falha ao converter preço do quarto: %v", err)
 	}
 
-	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
+	roomBuild, err := room.NewBuilder().WithID(roomDB.ID).WithName(roomDB.Name).WithDescription(roomDB.Description).WithCod(roomDB.Cod).WithNumber(int(roomDB.Number)).WithVacancies(int(roomDB.Vacancies)).WithPrice(price).WithCreatedAt(roomDB.CreatedAt).WithUpdatedAt(roomDB.UpdatedAt).Build()
 
 	if err != nil {
 		return nil, fmt.Errorf("falha ao construir quarto: %v", err)
@@ -264,7 +267,7 @@ func (instance RoomPostgresRepository) GetRoomWithImagesByRoomID(id uuid.UUID) (
 	var imagesBuild []image.Image
 
 	for _, imageDb := range imagesDB {
-		imageBuild, err := image.NewBuilder().WithIDRoom(imageDb.IDRoom).WithImageUrl(imageDb.ImageUrl).Build()
+		imageBuild, err := image.NewBuilder().WithIDRoom(imageDb.IDRoom).WithImageUrl(imageDb.ImageUrl).WithThumbnail(imageDb.Thumbnail).Build()
 
 		if err != nil {
 			return nil, fmt.Errorf("falha ao construir imagem: %v", err)

@@ -24,7 +24,7 @@ func (instance *RoomServices) CreateRoom(r room.Room, tokenJwt string) error {
 
 	createAt := time.Now()
 
-	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).WithCreatedAt(createAt).WithUpdatedAt(createAt).Build()
+	formattedRoom, err := room.NewBuilder().WithID(newRoomUUID).WithName(r.Name()).WithDescription(r.Description()).WithCod(r.Cod()).WithNumber(r.Number()).WithVacancies(r.Vacancies()).WithPrice(r.Price()).WithCreatedAt(createAt).WithUpdatedAt(createAt).Build()
 
 	if err != nil {
 		return err
@@ -49,8 +49,8 @@ func (instance *RoomServices) DeleteRoomByID(id uuid.UUID, tokenJwt string) erro
 	return instance.roomRepository.DeleteRoomByID(id, tokenJwt)
 }
 
-func (instance *RoomServices) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, tokenJwt string) error {
-	return instance.roomRepository.AddImageToRoomByRoomID(id, imageUrl, tokenJwt)
+func (instance *RoomServices) AddImageToRoomByRoomID(id uuid.UUID, imageUrl string, imageThumbnail bool, tokenJwt string) error {
+	return instance.roomRepository.AddImageToRoomByRoomID(id, imageUrl, imageThumbnail, tokenJwt)
 }
 
 func (instance *RoomServices) GetRoomWithImagesByRoomID(id uuid.UUID) (*room.Room, error) {

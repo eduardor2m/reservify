@@ -11,8 +11,9 @@ import (
 )
 
 type Image struct {
-	IDRoom   uuid.UUID
-	ImageUrl string
+	IDRoom    uuid.UUID
+	ImageUrl  string
+	Thumbnail bool
 }
 
 type Reservation struct {
@@ -26,13 +27,15 @@ type Reservation struct {
 }
 
 type Room struct {
-	ID        uuid.UUID
-	Cod       string
-	Number    int32
-	Vacancies int32
-	Price     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uuid.UUID
+	Cod         string
+	Name        string
+	Description string
+	Number      int32
+	Vacancies   int32
+	Price       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type User struct {

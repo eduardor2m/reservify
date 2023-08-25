@@ -6,7 +6,8 @@ import (
 
 type Image struct {
 	idRoom    uuid.UUID
-	imageUrl	string
+	imageUrl  string
+	thumbnail bool
 }
 
 func (instance *Image) IDRoom() uuid.UUID {
@@ -17,3 +18,6 @@ func (instance *Image) ImageUrl() string {
 	return instance.imageUrl
 }
 
+func (instance *Image) Thumbnail() bool {
+	return instance.thumbnail
+}

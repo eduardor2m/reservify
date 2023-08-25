@@ -1,11 +1,23 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Reserva de quartos para Hotéis",
+        "title": "Reservify API",
+        "contact": {
+            "name": "Eduardo Melo",
+            "email": "deveduardomelo@gmail.com"
+        },
+        "version": "1.0"
     },
+    "basePath": "/api",
     "paths": {
-        "/reservations": {
+        "/reservation": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna uma lista de todas as reservas de salas",
                 "produces": [
                     "application/json"
@@ -14,15 +26,6 @@
                     "Reserva"
                 ],
                 "summary": "Lista todas as reservas de salas",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -42,6 +45,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Cria uma nova reserva de sala com base nos detalhes fornecidos",
                 "produces": [
                     "application/json"
@@ -52,13 +60,6 @@
                 "summary": "Cria uma nova reserva de sala",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Detalhes da reserva a ser criada",
                         "name": "reservationDTO",
                         "in": "body",
@@ -84,8 +85,13 @@
                 }
             }
         },
-        "/reservations/my": {
+        "/reservation/my": {
             "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Cria uma nova reserva de sala com base nos detalhes fornecidos pelo usuário autenticado",
                 "produces": [
                     "application/json"
@@ -96,13 +102,6 @@
                 "summary": "Cria uma nova reserva de sala para o usuário autenticado",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Detalhes da reserva a ser criada",
                         "name": "reservationDTO",
                         "in": "body",
@@ -128,8 +127,13 @@
                 }
             }
         },
-        "/reservations/my/{id}": {
+        "/reservation/my/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Deleta uma reserva de sala do usuário autenticado com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -144,13 +148,6 @@
                         "description": "ID da reserva",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -170,8 +167,13 @@
                 }
             }
         },
-        "/reservations/room/{id_room}": {
+        "/reservation/room/{id_room}": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna as reservas de salas com base no ID da sala fornecido",
                 "produces": [
                     "application/json"
@@ -186,13 +188,6 @@
                         "description": "ID da sala",
                         "name": "id_room",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -215,7 +210,7 @@
                 }
             }
         },
-        "/reservations/user/{id_user}": {
+        "/reservation/user/{id_user}": {
             "get": {
                 "description": "Retorna as reservas de salas com base no ID do usuário fornecido",
                 "produces": [
@@ -253,8 +248,13 @@
                 }
             }
         },
-        "/reservations/{id}": {
+        "/reservation/{id}": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna os detalhes de uma reserva de sala com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -269,13 +269,6 @@
                         "description": "ID da reserva",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -295,6 +288,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Deleta uma reserva de sala com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -309,13 +307,6 @@
                         "description": "ID da reserva",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -335,7 +326,7 @@
                 }
             }
         },
-        "/rooms": {
+        "/room": {
             "get": {
                 "description": "Retorna uma lista de todas as salas disponíveis",
                 "produces": [
@@ -364,6 +355,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Cria uma nova sala com os detalhes fornecidos",
                 "consumes": [
                     "application/json"
@@ -376,13 +372,6 @@
                 ],
                 "summary": "Cria uma nova sala",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "Detalhes da sala a ser criada",
                         "name": "roomDTO",
@@ -409,8 +398,13 @@
                 }
             }
         },
-        "/rooms/image": {
+        "/room/image": {
             "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Adiciona uma imagem a uma sala com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -420,13 +414,6 @@
                 ],
                 "summary": "Adiciona uma imagem a uma sala por ID",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "Detalhes da imagem a ser adicionada",
                         "name": "imageDTO",
@@ -453,7 +440,7 @@
                 }
             }
         },
-        "/rooms/{cod}": {
+        "/room/{cod}": {
             "get": {
                 "description": "Retorna os detalhes de uma sala com base no código fornecido",
                 "produces": [
@@ -488,7 +475,7 @@
                 }
             }
         },
-        "/rooms/{id}": {
+        "/room/{id}": {
             "get": {
                 "description": "Retorna os detalhes de uma sala com base no ID fornecido",
                 "produces": [
@@ -523,6 +510,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Deleta uma sala com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -532,13 +524,6 @@
                 ],
                 "summary": "Deleta uma sala por ID",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "ID da sala",
@@ -563,7 +548,7 @@
                 }
             }
         },
-        "/rooms/{id}/images": {
+        "/room/{id}/images": {
             "get": {
                 "description": "Retorna os detalhes de uma sala, incluindo suas imagens, com base no ID fornecido",
                 "produces": [
@@ -598,8 +583,13 @@
                 }
             }
         },
-        "/users": {
+        "/user": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna uma lista de todos os usuários registrados",
                 "produces": [
                     "application/json"
@@ -608,15 +598,6 @@
                     "Usuário"
                 ],
                 "summary": "Lista todos os usuários",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -671,8 +652,13 @@
                 }
             }
         },
-        "/users/admin/{id_user}": {
+        "/user/admin/{id_user}": {
             "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Atualiza o status de administrador de um usuário com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -687,13 +673,6 @@
                         "description": "ID do usuário",
                         "name": "id_user",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -713,8 +692,13 @@
                 }
             }
         },
-        "/users/email/{email}": {
+        "/user/email/{email}": {
             "delete": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Deleta um usuário com base no email fornecido",
                 "produces": [
                     "application/json"
@@ -729,13 +713,6 @@
                         "description": "Email do usuário",
                         "name": "email",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -755,7 +732,7 @@
                 }
             }
         },
-        "/users/login": {
+        "/user/login": {
             "post": {
                 "description": "Realiza o login de um usuário com base no email e senha fornecidos",
                 "produces": [
@@ -792,8 +769,16 @@
                 }
             }
         },
-        "/users/name/{name}": {
+        "/user/name/{name}": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    },
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna uma lista de usuários com base no nome fornecido",
                 "produces": [
                     "application/json"
@@ -808,13 +793,6 @@
                         "description": "Nome do usuário",
                         "name": "name",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -837,8 +815,13 @@
                 }
             }
         },
-        "/users/{email}": {
+        "/user/{email}": {
             "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Atualiza informações de um usuário com base no email fornecido",
                 "produces": [
                     "application/json"
@@ -854,13 +837,6 @@
                         "name": "email",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -873,8 +849,16 @@
                 }
             }
         },
-        "/users/{id}": {
+        "/user/{id}": {
             "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    },
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "description": "Retorna os detalhes de um usuário com base no ID fornecido",
                 "produces": [
                     "application/json"
@@ -889,13 +873,6 @@
                         "description": "ID do usuário",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Token de autenticação do usuário",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -1115,6 +1092,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
