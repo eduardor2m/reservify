@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
+	"log"
 	"reservify/internal/adapters/delivery/http"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	if err := godotenv.Load("./cmd/application/.env"); err != nil {
-		panic(err)
+		log.Println("Error loading .env file")
 	}
 
 	api := http.NewAPI(&http.Options{})

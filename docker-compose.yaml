@@ -1,12 +1,28 @@
 version: '3.8'
 
 services:
+  app:
+    image: reservify:latest
+    container_name: reservify-app
+    environment:
+      SERVER_PORT: 8080
+      DB_NAME: reservify
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: postgres
+      DB_PORT: 5432
+      JWT_SECRET: secret
+      DEVELOPMENT: true
+    ports:
+      - "8080:8080"
   postgres:
     image: postgres:latest
-    container_name: reservify
+    container_name: reservify-postgres
     environment:
       POSTGRES_DB: reservify
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
+    depends_on:
+      - app

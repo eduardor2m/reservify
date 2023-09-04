@@ -16,6 +16,8 @@ require (
 	golang.org/x/crypto v0.12.0
 )
 
+require github.com/go-sql-driver/mysql v1.7.1 // indirect
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
